@@ -1,0 +1,62 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Run Angular Frontend",
+      "type": "shell",
+      "command": "ng",
+      "args": ["serve"],
+      "options": {
+        "cwd": "${workspaceFolder}\\frontend\\"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "dedicated",
+        "showReuseMessage": false,
+        "clear": true,
+        "group": "fullstack"
+      },
+      "group": "build"
+    },
+    {
+      "label": "Run Uvicorn Backend",
+      "type": "shell",
+      "command": "call venv\\Scripts\\activate && python -m uvicorn app:app --host 0.0.0.0 --port 8000 --reload",
+      "options": {
+        "cwd": "${workspaceFolder}\\backend\\app\\",
+        "shell": {
+          "executable": "cmd.exe",
+          "args": ["/d", "/c"]
+        },
+        "env": {
+          "MONGODB_URI": "FILL_HERE",
+          "DB_NAME": "FILL_HERE"
+        }
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "dedicated",
+        "showReuseMessage": false,
+        "clear": true,
+        "group": "fullstack"
+      },
+      "group": "build"
+    },
+    {
+      "label": "Run Full Stack",
+      "dependsOn": ["Run Angular Frontend", "Run Uvicorn Backend"],
+      "dependsOrder": "parallel",
+      "problemMatcher": [],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    }
+  ]
+}
