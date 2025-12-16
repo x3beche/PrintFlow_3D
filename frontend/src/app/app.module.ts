@@ -17,7 +17,11 @@ import { ChatHeaderComponent } from "./dashboard/header/header.component";
 import { ChatSidebarComponent } from "./dashboard/sidebar/sidebar.component";
 import { ForgetPasswordComponent } from "./auth/forget-password/forget-password.component";
 import { NavbarComponent } from "./home/navbar/navbar.component";
-import { MainComponent } from "./dashboard/example_page/main.component";
+import { OrderComponent } from "./dashboard/order/order.component";
+import { OrderListComponent } from "./dashboard/order-list/order-list.component";
+import { OrderTrackingComponent } from "./dashboard/order-tracking/order-tracking.component";
+import { ManifacturerPoolComponent } from "./dashboard/manifacturer-pool/manifacturer-pool.component";
+import { ManifacturerProcessComponent } from "./dashboard/manifacturer-process/manifacturer-process.component";
 
 @NgModule({
   declarations: [
@@ -34,7 +38,11 @@ import { MainComponent } from "./dashboard/example_page/main.component";
     AdminComponent,
     ContentComponent,
     FileSizePipe,
-    MainComponent
+    OrderComponent,
+    OrderListComponent,
+    OrderTrackingComponent,
+    ManifacturerPoolComponent,
+    ManifacturerProcessComponent 
   ],
   imports: [
     HttpClientModule,

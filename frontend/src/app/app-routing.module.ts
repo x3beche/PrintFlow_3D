@@ -8,7 +8,7 @@ import { UserSettingsComponent } from "src/app/user/user-settings/user-settings.
 import { AdminComponent } from "./admin/user-dashboard/admin.component";
 import { ContentComponent } from "./content/content.component";
 import { ForgetPasswordComponent } from "./auth/forget-password/forget-password.component";
-import { MainComponent } from "./dashboard/example_page/main.component";
+import { OrderComponent } from "./dashboard/order/order.component";
 
 const routes: Routes = [
   { path: "", component: HomeComponent, canActivate: [ReverseAuthGuard] },
@@ -28,8 +28,8 @@ const routes: Routes = [
     canActivate: [ReverseAuthGuard],
   },
   {
-    path: "dashboard",
-    component: MainComponent,
+    path: "order",
+    component: OrderComponent,
     canActivate: [AuthGuard],
   },
   {

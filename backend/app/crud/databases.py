@@ -8,7 +8,6 @@ users = db["users"]
 deleted_users = db["deleted_users"]
 files_db = db["files_db"]
 general_settings = db["general_settings"]
-channels_collection = db["channels"]
-messages_collection = db["messages"]
+orders = db["orders"]
 
 fs = gridfs.GridFS(db)

@@ -41,7 +41,7 @@ class ReversePermissionsService {
     state: RouterStateSnapshot
   ): boolean {
     let status = this.authService.hasToken();
-    if (status) this.router.navigate(['/dashboard']);
+    if (status) this.router.navigate(['/order']);
     return !status;
   }
 }
