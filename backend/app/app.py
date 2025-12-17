@@ -30,4 +30,8 @@ from routes.authentication.routes import *
 from routes.user.routes import *
 from routes.admin.routes import *
 from routes.content.routes import *
-from routes.chatter.routes import *
+from routes.order.routes import *
+from routes.order_list.routes import *
+from routes.order_tracking.routes import *
+from routes.manifacturer_pool.routes import *
+from routes.manifacturer_process.routes import *

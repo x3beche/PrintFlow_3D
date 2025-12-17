@@ -50,9 +50,11 @@
 
     <!-- Navigation Buttons -->
     <div class="">
-      <!-- Home Button -->
-      <button routerLink="/dashboard" id="sidebar-new-chat-button"
-        class="flex items-center py-2.5 w-full h-11 hover:bg-gray-100 dark:hover:bg-zinc-800 transition" [ngClass]="{
+      <button
+        routerLink="/order"
+        id="sidebar-new-chat-button"
+        class="flex items-center py-2.5 w-full h-11 hover:bg-gray-100 dark:hover:bg-zinc-800 transition"
+        [ngClass]="{
           'justify-start gap-3': !isCollapsed,
           'justify-center flex-col gap-1': isCollapsed
         }" draggable="false">
