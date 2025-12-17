@@ -1,39 +1,25 @@
 <!-- src/app/components/sidebar/sidebar.component.html -->
-<aside
-  id="default-sidebar"
+<aside id="default-sidebar"
   class="fixed top-0 left-0 z-40 h-screen bg-gray-50 dark:bg-neutral-950 border-r-[1px] border-neutral-600 transition-all -translate-x-full sm:translate-x-0"
   [ngClass]="{ 
     'w-48': !isCollapsed, 
     'w-12': isCollapsed 
-  }"
-  aria-label="Sidebar"
->
+  }" aria-label="Sidebar">
   <div class="h-full flex flex-col">
     <!-- Header Section (Logo + Collapse Button) - Uncollapsed -->
     <div *ngIf="!isCollapsed" class="flex items-center justify-between px-2.5 py-1">
       <!-- Logo Text - Sola yapıştırılmış -->
       <div class="flex items-center flex-1 min-w-0">
-        <span
-          class="self-center text-2xl font-semibold font-inter whitespace-nowrap dark:text-white"
-          [class.typing-animation]="isAnimating"
-          [innerHTML]="displayedText"
-        ></span>
+        <span class="self-center text-2xl font-semibold font-inter whitespace-nowrap dark:text-white"
+          [class.typing-animation]="isAnimating" [innerHTML]="displayedText"></span>
       </div>
 
       <!-- Collapse Button - Sağa yapıştırılmış -->
-      <button
-        (click)="onToggle()"
-        class="flex items-center justify-center w-10 h-7 rounded-lg transition flex-shrink-0 ml-2"
-      >
-        <svg
-          class="w-5 h-5 text-gray-800 dark:text-white transition-transform"
-          [class.rotate-180]="isCollapsed"
-          [style.transition]="isInitialLoad ? 'none' : null"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-          aria-hidden="true"
-        >
+      <button (click)="onToggle()"
+        class="flex items-center justify-center w-10 h-7 rounded-lg transition flex-shrink-0 ml-2">
+        <svg class="w-5 h-5 text-gray-800 dark:text-white transition-transform" [class.rotate-180]="isCollapsed"
+          [style.transition]="isInitialLoad ? 'none' : null" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+          aria-hidden="true">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
         </svg>
       </button>
@@ -43,9 +29,7 @@
     <div *ngIf="isCollapsed" class="flex flex-col items-center py-1">
       <!-- Logo -->
       <div class="flex items-center justify-center">
-        <span 
-          class="self-center text-2xl font-semibold font-inter dark:text-white"
-        >
+        <span class="self-center text-2xl font-semibold font-inter dark:text-white">
           K
         </span>
       </div>
@@ -53,57 +37,95 @@
     <hr class="border-gray-300 dark:border-zinc-700" />
     <!-- Collapse Button - Collapsed (HR altında) -->
     <div *ngIf="isCollapsed" class="flex justify-center">
-      <button
-        (click)="onToggle()"
-        class="flex items-center justify-center w-12 h-11 hover:bg-gray-100 dark:hover:bg-zinc-800 transition"
-      >
-        <svg
-          class="w-5 h-5 text-gray-800 dark:text-white transition-transform rotate-180"
-          [style.transition]="isInitialLoad ? 'none' : null"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-          aria-hidden="true"
-        >
+      <button (click)="onToggle()"
+        class="flex items-center justify-center w-12 h-11 hover:bg-gray-100 dark:hover:bg-zinc-800 transition">
+        <svg class="w-5 h-5 text-gray-800 dark:text-white transition-transform rotate-180"
+          [style.transition]="isInitialLoad ? 'none' : null" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+          aria-hidden="true">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
         </svg>
       </button>
     </div>
     <hr *ngIf="isCollapsed" class="border-gray-300 dark:border-zinc-700" />
+
+    <!-- Navigation Buttons -->
     <div class="">
-      <button
-        routerLink="/dashboard"
-        id="sidebar-new-chat-button"
-        class="flex items-center py-2.5 w-full h-11 hover:bg-gray-100 dark:hover:bg-zinc-800 transition"
-        [ngClass]="{
+      <!-- Home Button -->
+      <button routerLink="/dashboard" id="sidebar-new-chat-button"
+        class="flex items-center py-2.5 w-full h-11 hover:bg-gray-100 dark:hover:bg-zinc-800 transition" [ngClass]="{
           'justify-start gap-3': !isCollapsed,
           'justify-center flex-col gap-1': isCollapsed
-        }"
-        draggable="false"
-      >
-        <!-- Home Icon -->
-        <svg
-          [ngClass]="{'w-5 h-5 ms-3': !isCollapsed, 'w-6 h-6': isCollapsed }"
-          class="text-gray-800 dark:text-white flex-shrink-0"
-          aria-hidden="true"
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-        >
-          <path
-            stroke="currentColor"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="m4 12 8-8 8 8M6 10.5V19a1 1 0 0 0 1 1h3v-3a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v3h3a1 1 0 0 0 1-1v-8.5"
-          />
+        }" draggable="false">
+        <svg [ngClass]="{'w-5 h-5 ms-3': !isCollapsed, 'w-6 h-6': isCollapsed }"
+          class="text-gray-800 dark:text-white flex-shrink-0" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+          fill="none" viewBox="0 0 24 24">
+          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="m4 12 8-8 8 8M6 10.5V19a1 1 0 0 0 1 1h3v-3a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v3h3a1 1 0 0 0 1-1v-8.5" />
         </svg>
-        
-        <!-- Home Text -->
         <span *ngIf="!isCollapsed" class="font-medium text-sm font-inter text-zinc-100">Home</span>
+      </button>
+
+      <!-- New Order Button -->
+      <button routerLink="/new-order"
+        class="flex items-center py-2.5 w-full h-11 hover:bg-gray-100 dark:hover:bg-zinc-800 transition" [ngClass]="{
+          'justify-start gap-3': !isCollapsed,
+          'justify-center flex-col gap-1': isCollapsed
+        }" draggable="false">
+        <svg [ngClass]="{'w-5 h-5 ms-3': !isCollapsed, 'w-6 h-6': isCollapsed }"
+          class="text-gray-800 dark:text-white flex-shrink-0" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+          fill="none" viewBox="0 0 24 24">
+          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M14 17h6m-3 3v-6M4.857 4h4.286c.473 0 .857.384.857.857v4.286a.857.857 0 0 1-.857.857H4.857A.857.857 0 0 1 4 9.143V4.857C4 4.384 4.384 4 4.857 4Zm10 0h4.286c.473 0 .857.384.857.857v4.286a.857.857 0 0 1-.857.857h-4.286A.857.857 0 0 1 14 9.143V4.857c0-.473.384-.857.857-.857Zm-10 10h4.286c.473 0 .857.384.857.857v4.286a.857.857 0 0 1-.857.857H4.857A.857.857 0 0 1 4 19.143v-4.286c0-.473.384-.857.857-.857Z" />
+        </svg>
+        <span *ngIf="!isCollapsed" class="font-medium text-sm font-inter text-zinc-100">New Order</span>
+      </button>
+
+      <!-- Orders Button (First) -->
+      <button routerLink="/orders"
+        class="flex items-center py-2.5 w-full h-11 hover:bg-gray-100 dark:hover:bg-zinc-800 transition" [ngClass]="{
+          'justify-start gap-3': !isCollapsed,
+          'justify-center flex-col gap-1': isCollapsed
+        }" draggable="false">
+        <svg [ngClass]="{'w-5 h-5 ms-3': !isCollapsed, 'w-6 h-6': isCollapsed }"
+          class="text-gray-800 dark:text-white flex-shrink-0" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+          fill="none" viewBox="0 0 24 24">
+          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M18 6H6m12 4H6m12 4H6m12 4H6" />
+        </svg>
+        <span *ngIf="!isCollapsed" class="font-medium text-sm font-inter text-zinc-100">Orders</span>
+      </button>
+
+      <!-- Orders Button (Second) -->
+      <button routerLink="/orders-list"
+        class="flex items-center py-2.5 w-full h-11 hover:bg-gray-100 dark:hover:bg-zinc-800 transition" [ngClass]="{
+          'justify-start gap-3': !isCollapsed,
+          'justify-center flex-col gap-1': isCollapsed
+        }" draggable="false">
+        <svg [ngClass]="{'w-5 h-5 ms-3': !isCollapsed, 'w-6 h-6': isCollapsed }"
+          class="text-gray-800 dark:text-white flex-shrink-0" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+          fill="none" viewBox="0 0 24 24">
+          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M18 6H6m12 4H6m12 4H6m12 4H6" />
+        </svg>
+        <span *ngIf="!isCollapsed" class="font-medium text-sm font-inter text-zinc-100">Orders</span>
+      </button>
+
+      <!-- Pool Button -->
+      <button routerLink="/pool"
+        class="flex items-center py-2.5 w-full h-11 hover:bg-gray-100 dark:hover:bg-zinc-800 transition" [ngClass]="{
+          'justify-start gap-3': !isCollapsed,
+          'justify-center flex-col gap-1': isCollapsed
+        }" draggable="false">
+        <svg [ngClass]="{'w-5 h-5 ms-3': !isCollapsed, 'w-6 h-6': isCollapsed }"
+          class="text-gray-800 dark:text-white flex-shrink-0" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+          fill="none" viewBox="0 0 24 24">
+          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M7.99999 10.8571 12 13.1428m-4.00001-2.2857L4 13.1428m3.99999-2.2857.00004-4.57139M12 13.1428v4.5715m0-4.5715-4.00001 2.2857M12 13.1428l4-2.2857m-4 2.2857V8.57143m0 4.57137 4 2.2858m-4 2.2857L7.99999 20M12 17.7143 16 20m-8.00001 0L4 17.7143v-4.5715M7.99999 20v-4.5715M4 13.1428l3.99999 2.2857M16 6.28571 12 4 8.00003 6.28571m7.99997 0v4.57139m0-4.57139-4 2.28572m4 2.28567 4 2.2858M8.00003 6.28571 12 8.57143m8 4.57147v4.5714L16 20m4-6.8571-4 2.2857M16 20v-4.5714" />
+        </svg>
+        <span *ngIf="!isCollapsed" class="font-medium text-sm font-inter text-zinc-100">Pool</span>
       </button>
     </div>
 
-     <hr *ngIf="isCollapsed" class="border-gray-300 dark:border-zinc-700" />
+    <hr *ngIf="isCollapsed" class="border-gray-300 dark:border-zinc-700" />
   </div>
 </aside>
