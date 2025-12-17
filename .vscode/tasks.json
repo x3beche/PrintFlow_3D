@@ -7,7 +7,7 @@
       "command": "ng",
       "args": ["serve"],
       "options": {
-        "cwd": "${workspaceFolder}/frontend"
+        "cwd": "${workspaceFolder}\\frontend\\"
       },
       "problemMatcher": [],
       "presentation": {
@@ -24,12 +24,16 @@
     {
       "label": "Run Uvicorn Backend",
       "type": "shell",
-      "command": "source venv/bin/activate && python3 -m uvicorn app:app --host 0.0.0.0 --port 8000 --reload",
+      "command": "call .venv\\Scripts\\activate && python -m uvicorn app:app --host 0.0.0.0 --port 8000 --reload",
       "options": {
-        "cwd": "${workspaceFolder}/backend/app",
+        "cwd": "${workspaceFolder}\\backend\\app\\",
+        "shell": {
+          "executable": "cmd.exe",
+          "args": ["/d", "/c"]
+        },
         "env": {
-          "MONGODB_URI": "mongodb+srv://devops:UoFKf4qpTjwF2VOF@kiwio.g3xtiqd.mongodb.net/",
-          "DB_NAME": "printflow_3d"
+          "MONGODB_URI": "FILL_HERE",
+          "DB_NAME": "FILL_HERE"
         }
       },
       "problemMatcher": [],
