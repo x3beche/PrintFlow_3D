@@ -13,3 +13,4 @@ uvicorn
 uvicorn[standard]
 bcrypt==4.0.1
 python-multipart==0.0.5
+numpy-stl

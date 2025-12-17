@@ -13,7 +13,7 @@ from routes.content.modules import get_content_user
 
 
 @app.post("/user/content_upload/", tags=["user operations"])
-def upload_files(
+def user_upload_file_route(
     files: List[UploadFile] = File(...), user: User = Depends(get_session)
 ):
 
@@ -63,7 +63,7 @@ def upload_files(
 
 
 @app.post("/content/upload/", tags=["administrator content operations"])
-def upload_files(
+def content_upload_file_route(
     files: List[UploadFile] = File(...), user: User = Depends(get_session)
 ):
     if user.role in [UserRoles.admin, UserRoles.manager]:
@@ -129,7 +129,7 @@ def get_general_file_list_route(user: User = Depends(get_session)) -> List[FileM
 
 
 @app.post("/content/update_file/", tags=["administrator content operations"])
-def upload_files(file: FileModel, user: User = Depends(get_session)) -> FileModel:
+def content_update_file_route(file: FileModel, user: User = Depends(get_session)) -> FileModel:
     if user.role in [UserRoles.admin, UserRoles.manager]:
         files_db.update_one(
             {"id": file.id},
@@ -147,7 +147,7 @@ def delete_file_route(file: FileModel, user: User = Depends(get_session)) -> str
 
 
 @app.get("/company_logo/", tags=["general media"])
-def upload_files():
+def content_set_company_logo_route():
     # Convert image_id to ObjectId
     file: dict = files_db.find_one(
         {
@@ -170,7 +170,7 @@ def upload_files():
 
 
 @app.get("/content/favicon", tags=["general media"])
-def upload_files():
+def content_set_favicon_route():
     # Convert image_id to ObjectId
     file: dict = files_db.find_one(
         {

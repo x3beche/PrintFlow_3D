@@ -20,7 +20,7 @@ export class AdminComponent {
   users: User[] = [];
   s_user!: User;
   image_api: string = environment.api + "/profile_picture/";
-  roles = ["admin", "user", "manager"];
+  roles = ["admin", "user", "manager", "manufacturer"];
   statuses = ["normal", "suspend"];
   user_save_status = false;
   user_delete_status = false;
@@ -30,6 +30,7 @@ export class AdminComponent {
     user: true,
     admin: true,
     manager: true,
+    manufacturer: true
   };
   paginationInfo = {
     page: 1,
