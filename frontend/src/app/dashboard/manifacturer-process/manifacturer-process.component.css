@@ -1,0 +1,10 @@
+/* Chrome, Safari ve Opera için scrollbar'ı gizle */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* IE, Edge ve Firefox için scrollbar'ı gizle */
+.no-scrollbar {
+  -ms-overflow-style: none;  /* IE ve Edge */
+  scrollbar-width: none;  /* Firefox */
+}
