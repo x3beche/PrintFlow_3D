@@ -1,3 +1,4 @@
+import { ManifacturerProcessComponent } from './dashboard/manifacturer-process/manifacturer-process.component';
 import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
 import { HomeComponent } from "./home/home.component";
@@ -40,6 +41,11 @@ const routes: Routes = [
   {
     path: "admin/users",
     component: AdminComponent,
+    canActivate: [AuthGuard],
+  },
+  {
+    path: "manufacturer/process",
+    component: ManifacturerProcessComponent,
     canActivate: [AuthGuard],
   },
 ];
