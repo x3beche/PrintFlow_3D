@@ -1,0 +1,31 @@
+.bg-gray-800 {
+  background-color: #2d3748;
+}
+
+.bg-gray-700 {
+  background-color: #4a5568;
+}
+
+.bg-yellow-500 {
+  background-color: #ecc94b;
+}
+
+.bg-red-500 {
+  background-color: #f56565;
+}
+
+.hover\:bg-yellow-600:hover {
+  background-color: #d69e2e;
+}
+
+.hover\:bg-red-600:hover {
+  background-color: #c53030;
+}
+
+.text-white {
+  color: #fff;
+}
+
+.text-gray-400 {
+  color: #cbd5e0;
+}

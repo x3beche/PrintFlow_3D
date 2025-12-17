@@ -3,9 +3,43 @@
   class="flex flex-col h-screen bg-neutral-900"
   [ngClass]="{ 'sm:ml-48': !sidebarCollapsed, 'sm:ml-12': sidebarCollapsed }"
 >
-  <app-header header_title="Order Page"></app-header>
+  <app-header header_title="Order List"></app-header>
+  
   <!-- Ana container -->
-  <div class="flex-1 p-2 grid grid-cols-2 gap-2 bg-black overflow-hidden">
-   <p class="font-inter text-white">te124124st2</p>
+  <div class="flex-1 p-2 bg-black overflow-hidden">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div *ngFor="let order of orders" class="bg-gray-800 p-4 rounded-lg shadow-md">
+        <div class="flex items-center mb-2">
+          <div class="w-16 h-16 bg-gray-700 rounded-md flex items-center justify-center">
+            <!-- Placeholder for image -->
+            <span class="text-white">Image</span>
+          </div>
+          <div class="ml-4">
+            <p class="text-lg font-semibold text-white">Order Number: {{ order.orderNumber }}</p>
+            <p class="text-sm text-gray-400">Status: {{ order.status }}</p>
+            <p class="text-sm text-gray-400">Manufacturer: {{ order.manufacturer }}</p>
+          </div>
+        </div>
+        <div class="flex justify-between">
+          <button class="py-1 px-3 bg-yellow-500 text-white rounded hover:bg-yellow-600">
+            Track Order
+          </button>
+          <button class="py-1 px-3 bg-red-500 text-white rounded hover:bg-red-600">
+            Cancel Order
+          </button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Pagination -->
+    <div class="flex justify-between items-center mt-4">
+      <button class="py-2 px-4 bg-gray-700 text-white rounded hover:bg-gray-600" (click)="prevPage()" [disabled]="currentPage === 1">
+        Previous
+      </button>
+      <span class="text-white">Page {{ currentPage }} of {{ totalPages }}</span>
+      <button class="py-2 px-4 bg-gray-700 text-white rounded hover:bg-gray-600" (click)="nextPage()" [disabled]="currentPage === totalPages">
+        Next
+      </button>
+    </div>
   </div>
 </div>
