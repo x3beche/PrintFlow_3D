@@ -3,8 +3,10 @@
   [ngClass]="{ 'sm:ml-48': !sidebarCollapsed, 'sm:ml-12': sidebarCollapsed }">
   <app-header header_title="Order Page"></app-header>
 
-  <div
-    class="flex-1 flex flex-col bg-neutral-900 overflow-hidden relative w-full lg:w-[60%] mx-auto border-x border-zinc-800 shadow-2xl">
+  <!-- main container -->
+  <div class="p-4 bg-black h-full w-full overflow-hidden">
+
+  <div class="flex flex-col bg-neutral-900 overflow-hidden relative w-[60%] h-full mx-auto border border-zinc-800 shadow-2xl hover:border-zinc-600 transition-colors duration-150 flex flex-col overflow-hidden" >
 
     <div class="flex flex-col h-full w-full text-white font-inter">
 
@@ -135,7 +137,7 @@
                   </div>
                   <div class="p-4 flex-1">
                     <div class="w-full h-full bg-neutral-900/50 border border-zinc-700 p-3 text-sm text-neutral-300 italic overflow-y-auto">
-                      "{{ manufacturingState?.customer?.notes }}"
+                      "{{ finalizationState?.inputs?.notesToCustomer}}"
                     </div>
                   </div>
                 </div>
@@ -192,28 +194,23 @@
           
             </div>
           </div>
-
           <div *ngIf="activeTabName === 'Finalization'" class="flex flex-col h-full fade-in">
 
-            <!--  -->
             <div class="mb-12 mt-4 flex-none">
               <div class="flex items-start justify-between relative px-4">
                 <div class="absolute top-5 left-0 w-full h-px bg-zinc-700 -z-0"></div>
-
-                <div *ngFor="let step of steps; let i = index"
-                  class="flex flex-col items-center relative z-10 group cursor-default">
-                  <div
-                    class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg border-4 transition-all duration-300"
+          
+                <div *ngFor="let step of steps; let i = index" class="flex flex-col items-center relative z-10 group cursor-default">
+                  <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg border-4 transition-all duration-300"
                     [ngClass]="{
-                            'bg-white text-neutral-900 border-neutral-900 scale-110': step.completed,
-                            'bg-neutral-800 text-neutral-500 border-neutral-900': !step.completed,
-                          }">
+                      'bg-white text-neutral-900 border-neutral-900 scale-110': step.completed,
+                      'bg-neutral-800 text-neutral-500 border-neutral-900': !step.completed
+                    }">
                     {{ step.id }}
                   </div>
-
+          
                   <div class="mt-3 text-center">
-                    <div class="text-sm font-semibold transition-colors"
-                      [ngClass]="step.completed ? 'text-white' : 'text-neutral-400'">
+                    <div class="text-sm font-semibold transition-colors" [ngClass]="step.completed ? 'text-white' : 'text-neutral-400'">
                       {{ step.label }}
                     </div>
                     <div class="text-xs text-neutral-500 mt-1">{{ step.date }}</div>
@@ -221,62 +218,78 @@
                 </div>
               </div>
             </div>
-
+          
             <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 flex-1">
-
+          
               <div class="lg:col-span-2 flex flex-col">
                 <h3 class="text-sm font-semibold text-white mb-2">Product Image</h3>
-                <div
-                  class="group flex-1 min-h-[400px] bg-neutral-800/30 border border-dashed border-zinc-700 flex flex-col items-center justify-center cursor-pointer hover:border-zinc-500 hover:bg-neutral-800 transition-all duration-200">
+                <div class="group flex-1 min-h-[400px] bg-neutral-800/30 border border-dashed border-zinc-700 flex flex-col items-center justify-center cursor-pointer hover:border-zinc-500 hover:bg-neutral-800 transition-all duration-200">
                   <div class="text-neutral-500 group-hover:text-neutral-300 mb-2 flex flex-col items-center">
-                    <svg xmlns="http://www.w3.org/2000/svg"
-                      class="h-12 w-12 mb-4 opacity-50 group-hover:opacity-100 transition-opacity" fill="none"
-                      viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mb-4 opacity-50 group-hover:opacity-100 transition-opacity" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
                     <span class="text-sm font-medium">Upload an image of final product</span>
                   </div>
                 </div>
               </div>
-
+          
               <div class="lg:col-span-2 flex flex-col h-full space-y-6">
-
+          
                 <div class="flex-1 flex flex-col">
                   <h3 class="text-sm font-semibold text-white mb-2">Notes</h3>
                   <textarea
-                    class="w-full flex-1 min-h-[120px] bg-neutral-800 border border-zinc-700 p-4 text-sm text-white placeholder-neutral-500 focus:outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 resize-none transition-all"
-                    placeholder="If you have any additional notes to the customer, please write here"></textarea>
-                </div>
-
+                    class="w-full flex-1 min-h-[120px] bg-neutral-900 border border-zinc-700 p-4 text-sm text-white placeholder-neutral-500 focus:outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 resize-none transition-all rounded-sm"
+                    placeholder="If you have any additional notes to the customer, please write here"
+                    [value]="finalizationState?.inputs?.notesToCustomer"></textarea> 
+                    </div>
+          
                 <div class="flex-1 flex flex-col">
                   <h3 class="text-sm font-semibold text-white mb-2">Delivery Address</h3>
                   <textarea
-                    class="w-full flex-1 min-h-[120px] bg-neutral-800 border border-zinc-700 p-4 text-sm text-white placeholder-neutral-500 focus:outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 resize-none transition-all"
-                    placeholder="Write details of delivery location"></textarea>
-                </div>
-
+                    class="w-full flex-1 min-h-[120px] bg-neutral-900 border border-zinc-700 p-4 text-sm text-white placeholder-neutral-500 focus:outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 resize-none transition-all rounded-sm"
+                    placeholder="Write details of delivery location"
+                    [value]="finalizationState?.inputs?.deliveryAddress"></textarea>
+                    </div>
+          
                 <div class="mt-auto pt-2">
                   <h3 class="text-sm font-semibold text-white mb-2">Calculated Price and Filament Usage</h3>
-                  <div class="bg-neutral-800 border border-zinc-700 p-5 flex justify-between items-center shadow-sm">
-                    <span class="text-sm font-medium text-zinc-300">245.56gr filament had been used</span>
-                    <div class="text-right">
-                      <span class="block text-xs text-zinc-400">Calculated price</span>
-                      <span class="text-xl font-bold text-white">356 TL</span>
+                  <div class="bg-neutral-800 border border-zinc-700 p-5 grid grid-cols-2 gap-6 shadow-sm">
+                
+                    <div class="flex flex-col">
+                      <label class="text-xs text-neutral-400 mb-1 ml-1">Filament Used</label>
+                      <div class="relative group">
+                        <input type="number"
+                               class="w-full bg-neutral-900 border border-zinc-700 p-3 text-sm text-white placeholder-neutral-600 focus:outline-none focus:border-zinc-500 transition-all rounded-sm"
+                               placeholder="0.00"
+                               [value]="finalizationState?.costs?.filamentUsage">
+                        <span class="absolute right-4 top-3.5 text-xs text-neutral-500 font-medium group-hover:text-neutral-400">gr</span>
+                      </div>
                     </div>
+                
+                    <div class="flex flex-col">
+                      <label class="text-xs text-neutral-400 mb-1 ml-1 text-right">Final Price</label>
+                      <div class="relative group">
+                        <input type="number"
+                               class="w-full bg-neutral-900 border border-zinc-700 p-3 text-right text-sm font-bold text-white placeholder-zinc-600 focus:outline-none focus:border-yellow-500 transition-all rounded-sm"
+                               [placeholder]="'Est: ' + (finalizationState?.costs?.estPrice || '0.00')" 
+                               [value]="finalizationState?.costs?.finalPrice">
+                        <span class="absolute left-4 top-3.5 text-xs text-zinc-500 group-hover:text-zinc-400">TL</span>
+                      </div>
+                    </div>
+                
                   </div>
                 </div>
-
+          
               </div>
             </div>
-
+          
             <div class="flex justify-end mt-8 pb-4">
               <button
                 class="bg-yellow-400 hover:bg-yellow-500 text-neutral-900 font-bold py-3 px-16 shadow-lg hover:shadow-yellow-400/20 transition-all duration-200 transform active:scale-95">
                 Submit
               </button>
             </div>
-
+          
           </div>
 
         </div>
@@ -284,4 +297,7 @@
     </div>
 
   </div>
+
+</div>
+
 </div>
