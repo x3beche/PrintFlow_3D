@@ -42,11 +42,6 @@ const routes: Routes = [
     component: AdminComponent,
     canActivate: [AuthGuard],
   },
-  {
-    path: "admin/content_manager",
-    component: ContentComponent,
-    canActivate: [AuthGuard],
-  },
 ];
 
 @NgModule({
