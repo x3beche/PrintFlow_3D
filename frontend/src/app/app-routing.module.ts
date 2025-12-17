@@ -10,6 +10,9 @@ import { AdminComponent } from "./admin/user-dashboard/admin.component";
 import { ContentComponent } from "./content/content.component";
 import { ForgetPasswordComponent } from "./auth/forget-password/forget-password.component";
 import { OrderComponent } from "./dashboard/order/order.component";
+import { ManifacturerPoolComponent } from './dashboard/manifacturer-pool/manifacturer-pool.component';
+import { OrderListComponent } from './dashboard/order-list/order-list.component';
+import { OrderTrackingComponent } from './dashboard/order-tracking/order-tracking.component';
 
 const routes: Routes = [
   { path: "", component: HomeComponent, canActivate: [ReverseAuthGuard] },
@@ -46,6 +49,26 @@ const routes: Routes = [
   {
     path: "manufacturer/process",
     component: ManifacturerProcessComponent,
+    canActivate: [AuthGuard],
+  },
+  {
+    path: "manufacturer/pool",
+    component: ManifacturerPoolComponent,
+    canActivate: [AuthGuard],
+  },
+  {
+    path: "order/new",
+    component: OrderComponent,
+    canActivate: [AuthGuard],
+  },
+  {
+    path: "order/list",
+    component: OrderListComponent,
+    canActivate: [AuthGuard],
+  },
+  {
+    path: "order/tracking",
+    component: OrderTrackingComponent,
     canActivate: [AuthGuard],
   },
 ];
