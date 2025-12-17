@@ -34,6 +34,24 @@ export interface ManufacturingState {
   };
 }
 
+export interface FinalizationState {
+  upload: {
+    preview: string | ArrayBuffer | null; 
+    file: File | null;                    
+  };
+  
+  inputs: {
+    notesToCustomer: string;
+    deliveryAddress: string;
+  };
+
+  costs: {
+    filamentUsage: string;  
+    estPrice: string;
+    finalPrice: string
+  };
+}
+
 @Component({
   selector: 'app-manifacturer-process',
   templateUrl: './manifacturer-process.component.html',
@@ -44,6 +62,7 @@ export class ManifacturerProcessComponent {
   private subscription?: Subscription;
 
   manufacturingState: ManufacturingState | null = null;
+  finalizationState: FinalizationState | null = null;
 
   isLoading = true;
 
@@ -107,6 +126,22 @@ export class ManifacturerProcessComponent {
         }
       };
 
+      this.finalizationState = {
+        upload: {
+          preview: null, 
+          file: null
+        },
+        inputs: {
+          notesToCustomer: "here is a note to customer", 
+          deliveryAddress: "here is the delivery addess to customer"  
+        },
+        costs: {
+          filamentUsage: "245.56", 
+          estPrice: "",
+          finalPrice: ""
+        }
+      };
+
       this.isLoading = false;
     }, 500);
   }
@@ -122,4 +157,6 @@ export class ManifacturerProcessComponent {
     
     this.activeTabName = selectedTab.name;
   }
+
+  
 }
