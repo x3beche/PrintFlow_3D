@@ -60,14 +60,25 @@ class OrderData(BaseModel):
     order_type: OrderType
     order_detail: PrintingConfig
 
+class OrderEstimations(BaseModel): 
+    estimated_weight: float
+    estimated_cost: float
+
 class OrderForm(BaseModel): 
     order_id: str
     user_id: str
     data: OrderData
 
-class OrderEstimations(BaseModel): 
-    estimated_weight: float
-    estimated_cost: float
+
+class OrderFormMain(BaseModel):
+    order_id: str
+    user_id: str
+    estimations: OrderEstimations
+    file_id: str
+    notes: str
+    order_type: OrderType
+    order_detail: PrintingConfig
+
 
 # ==================== PRICING CONFIGURATION ====================
 

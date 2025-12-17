@@ -1,31 +1,38 @@
-.bg-gray-800 {
-  background-color: #2d3748;
+/* Smooth transitions for all interactive elements */
+button {
+  transition: all 0.15s ease-in-out;
 }
 
-.bg-gray-700 {
-  background-color: #4a5568;
+/* Light card hover effect */
+.bg-neutral-800:hover {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+  transform: translateY(-1px);
 }
 
-.bg-yellow-500 {
-  background-color: #ecc94b;
+.bg-neutral-800 {
+  transition: all 0.15s ease-in-out;
 }
 
-.bg-red-500 {
-  background-color: #f56565;
+/* Status badge animation */
+span[class*="bg-"] {
+  transition: all 0.15s ease-in-out;
 }
 
-.hover\:bg-yellow-600:hover {
-  background-color: #d69e2e;
+/* Pagination button active state */
+button[class*="bg-yellow-400"] {
+  box-shadow: 0 0 0 2px rgba(250, 204, 21, 0.3);
 }
 
-.hover\:bg-red-600:hover {
-  background-color: #c53030;
+/* Dark card shadow */
+.bg-neutral-900 {
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.4);
 }
 
-.text-white {
-  color: #fff;
+/* Gray placeholder card */
+.bg-neutral-700 {
+  transition: all 0.15s ease-in-out;
 }
 
-.text-gray-400 {
-  color: #cbd5e0;
+.bg-neutral-700:hover {
+  background-color: rgb(64, 64, 64);
 }
