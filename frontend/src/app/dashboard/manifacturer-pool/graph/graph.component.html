@@ -1,0 +1,43 @@
+<div class="flex flex-col items-center justify-center">
+  
+	<div class="relative w-32 h-32">
+	  <svg class="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+		
+		<circle
+		  cx="50"
+		  cy="50"
+		  [attr.r]="radius"
+		  fill="transparent"
+		  stroke="currentColor"
+		  class="text-neutral-700"
+		  stroke-width="10"
+		/>
+  
+		<circle
+		  cx="50"
+		  cy="50"
+		  [attr.r]="radius"
+		  fill="transparent"
+		  [attr.stroke]="strokeColor"
+		  stroke-width="10"
+		  stroke-linecap="round"
+		  [attr.stroke-dasharray]="circumference"
+		  [attr.stroke-dashoffset]="strokeDashoffset"
+		  class="transition-all duration-700 ease-out"
+		/>
+	  </svg>
+  
+	  <div class="absolute inset-0 flex items-center justify-center">
+		<span class="text-xl font-bold text-white font-inter">
+		  {{ value }}%
+		</span>
+	  </div>
+	</div>
+  
+	<div class="mt-3 text-center px-2">
+	  <span class="text-sm font-semibold text-neutral-300 font-inter leading-tight block">
+		{{ label }}
+	  </span>
+	</div>
+  
+  </div>
