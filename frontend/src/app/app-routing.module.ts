@@ -47,12 +47,17 @@ const routes: Routes = [
     canActivate: [AuthGuard],
   },
   {
-    path: "manufacturer/process",
+    path: "order/tracking",
+    component: OrderTrackingComponent,
+    canActivate: [AuthGuard],
+  },
+  {
+    path: "manufacturer/order/pool/:uuid",
     component: ManifacturerProcessComponent,
     canActivate: [AuthGuard],
   },
   {
-    path: "manufacturer/pool",
+    path: "manufacturer/order/pool",
     component: ManifacturerPoolComponent,
     canActivate: [AuthGuard],
   },
@@ -64,11 +69,6 @@ const routes: Routes = [
   {
     path: "order/list",
     component: OrderListComponent,
-    canActivate: [AuthGuard],
-  },
-  {
-    path: "order/tracking",
-    component: OrderTrackingComponent,
     canActivate: [AuthGuard],
   },
 ];

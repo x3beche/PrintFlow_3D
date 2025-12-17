@@ -1,270 +1,371 @@
 <app-sidebar></app-sidebar>
+
 <div
   class="flex flex-col h-screen bg-neutral-900"
   [ngClass]="{ 'sm:ml-48': !sidebarCollapsed, 'sm:ml-12': sidebarCollapsed }"
 >
   <app-header header_title="Order Page"></app-header>
   
-  <!-- Main container -->
-  <div class="flex-1 p-4 grid grid-cols-2 gap-3 bg-black overflow-hidden">
+  <!-- Main container - Fixed height, no main scrollbar -->
+  <div class="flex-1 p-4 bg-black overflow-hidden flex items-center justify-center">
     
-    <!-- Left Panel - 3D Model Viewer -->
-    <div class="bg-neutral-900 border border-zinc-700 p-4 hover:border-zinc-600 transition-colors duration-150 flex flex-col overflow-hidden">
-      <div class="flex items-center justify-between mb-4 flex-shrink-0">
-        <h2 class="font-inter text-xl font-semibold text-white">3D View of Current Uploaded Model</h2>
-        <span class="font-inter text-sm text-neutral-400" *ngIf="uploadedFileName">{{ uploadedFileName }}</span>
-      </div>
+    <!-- Centered Card Container - Increased width -->
+    <div class="w-full max-w-[73%] h-full grid grid-cols-2 gap-3">
       
-      <!-- Upload Area / 3D Viewer -->
-      <div 
-        class="flex-1 bg-neutral-800 border border-zinc-700 flex items-center justify-center min-h-[400px] hover:border-zinc-600 transition-colors duration-150 cursor-pointer overflow-hidden"
-        [ngClass]="{'pointer-events-none': isUploading}"
-        (dragover)="onDragOver($event)"
-        (drop)="onDrop($event)"
-        (click)="!isUploading && fileInput.click()"
-      >
-        <input 
-          #fileInput 
-          type="file" 
-          class="hidden" 
-          accept=".stl,.obj,.3mf"
-          (change)="onFileSelected($event)"
-        />
+      <!-- Left Panel - 3D Model Viewer -->
+      <div class="bg-neutral-900 border border-zinc-700 p-4 hover:border-zinc-600 transition-colors duration-150 flex flex-col shadow-xl h-full">
+        <div class="flex items-center justify-between mb-4 flex-shrink-0">
+          <h2 class="font-inter text-xl font-semibold text-white">3D View of Current Uploaded Model</h2>
+          <span class="font-inter text-sm text-neutral-400" *ngIf="uploadedFileName">{{ uploadedFileName }}</span>
+        </div>
         
-        <!-- Uploading State -->
-        <div class="text-center" *ngIf="isUploading">
-          <div class="w-16 h-16 mx-auto mb-4 border-4 border-blue-400 border-t-transparent rounded-full animate-spin"></div>
-          <p class="font-inter text-white font-medium mb-2">Uploading {{ uploadedFileName }}...</p>
-          <p class="font-inter text-sm text-blue-400">Please wait</p>
-        </div>
-
-        <!-- No File State -->
-        <div class="text-center" *ngIf="!uploadedFile && !isUploading">
-          <svg class="w-16 h-16 mx-auto text-neutral-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
-          </svg>
-          <p class="font-inter text-white font-medium mb-2">Upload your file to start process...</p>
-          <p class="font-inter text-sm text-neutral-500">Drag & drop or click to browse (.stl, .obj, .3mf)</p>
-        </div>
-
-        <!-- File Uploaded State -->
-        <div class="text-center" *ngIf="uploadedFile && !isUploading && uploadedFileId">
-          <svg class="w-20 h-20 mx-auto text-green-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-          </svg>
-          <p class="font-inter text-white font-medium mb-2">{{ uploadedFileName }}</p>
-          <p class="font-inter text-sm text-green-400 mb-1">File uploaded successfully</p>
-          <p class="font-inter text-xs text-neutral-500 mb-4">File ID: {{ uploadedFileId }}</p>
-          <button 
-            type="button"
-            class="mt-2 px-4 py-2 bg-neutral-700 border border-zinc-600 text-white font-inter text-sm hover:bg-neutral-600 transition-colors duration-150"
-            (click)="fileInput.click(); $event.stopPropagation()"
-          >
-            Change File
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Right Panel - Ordering Form with Custom Scrollbar -->
-    <div class="bg-neutral-900 border border-zinc-700 p-6 hover:border-zinc-600 transition-colors duration-150 overflow-y-auto custom-scrollbar">
-      <h2 class="font-inter text-2xl font-semibold text-white mb-6">Ordering Form</h2>
-      
-      <form [formGroup]="orderForm" (ngSubmit)="onSubmit()" class="space-y-6">
-        
-        <!-- Order Type & Material Row -->
-        <div class="grid grid-cols-2 gap-4">
-          <div>
-            <label class="block font-inter text-sm font-medium text-white mb-2">Select Printing Technology</label>
-            <select 
-              formControlName="orderType"
-              class="w-full bg-neutral-800 border border-zinc-700 text-white font-inter text-sm px-4 py-2.5 hover:border-zinc-600 focus:border-blue-400 focus:outline-none transition-colors duration-150"
-            >
-              <option *ngFor="let type of orderTypes" [value]="type">{{ type }}</option>
-            </select>
-          </div>
-          
-          <div>
-            <label class="block font-inter text-sm font-medium text-white mb-2">Select Material</label>
-            <select 
-              formControlName="material"
-              class="w-full bg-neutral-800 border border-zinc-700 text-white font-inter text-sm px-4 py-2.5 hover:border-zinc-600 focus:border-blue-400 focus:outline-none transition-colors duration-150"
-            >
-              <option *ngFor="let material of (isFDM ? fdmMaterials : slaMaterials)" [value]="material">
-                {{ material }}
-              </option>
-            </select>
-          </div>
-        </div>
-
-        <!-- Color & Brand Row -->
-        <div class="grid grid-cols-2 gap-4">
-          <div>
-            <label class="block font-inter text-sm font-medium text-white mb-2">Select Color</label>
-            <select 
-              formControlName="color"
-              class="w-full bg-neutral-800 border border-zinc-700 text-white font-inter text-sm px-4 py-2.5 hover:border-zinc-600 focus:border-blue-400 focus:outline-none transition-colors duration-150"
-            >
-              <option *ngFor="let color of colors" [value]="color">{{ color }}</option>
-            </select>
-          </div>
-          
-          <div>
-            <label class="block font-inter text-sm font-medium text-white mb-2">Select Material Brand</label>
-            <select 
-              formControlName="brand"
-              class="w-full bg-neutral-800 border border-zinc-700 text-white font-inter text-sm px-4 py-2.5 hover:border-zinc-600 focus:border-blue-400 focus:outline-none transition-colors duration-150"
-            >
-              <option *ngFor="let brand of brands" [value]="brand">{{ brand }}</option>
-            </select>
-          </div>
-        </div>
-
-        <!-- Layer Height & Bottom Texture Row (FDM Only) -->
-        <div class="grid grid-cols-2 gap-4">
-          <div>
-            <label class="block font-inter text-sm font-medium text-white mb-2">Layer Height (mm)</label>
-            <select 
-              formControlName="layerHeight"
-              class="w-full bg-neutral-800 border border-zinc-700 text-white font-inter text-sm px-4 py-2.5 hover:border-zinc-600 focus:border-blue-400 focus:outline-none transition-colors duration-150"
-            >
-              <option *ngFor="let height of layerHeights" [value]="height">{{ height }} mm</option>
-            </select>
-          </div>
-          
-          <div *ngIf="isFDM">
-            <label class="block font-inter text-sm font-medium text-white mb-2">Select Bottom Texture</label>
-            <select 
-              formControlName="bottomTexture"
-              class="w-full bg-neutral-800 border border-zinc-700 text-white font-inter text-sm px-4 py-2.5 hover:border-zinc-600 focus:border-blue-400 focus:outline-none transition-colors duration-150"
-            >
-              <option *ngFor="let texture of bottomTextures" [value]="texture">{{ texture }}</option>
-            </select>
-          </div>
-        </div>
-
-        <!-- Infill & Nozzle Size/Quantity Row -->
-        <div class="grid grid-cols-2 gap-4">
-          <div>
-            <label class="block font-inter text-sm font-medium text-white mb-2">Infill (%)</label>
-            <select 
-              formControlName="infill"
-              class="w-full bg-neutral-800 border border-zinc-700 text-white font-inter text-sm px-4 py-2.5 hover:border-zinc-600 focus:border-blue-400 focus:outline-none transition-colors duration-150"
-            >
-              <option *ngFor="let infill of infillOptions" [value]="infill">{{ infill }}%</option>
-            </select>
-          </div>
-          
-          <div *ngIf="isFDM">
-            <label class="block font-inter text-sm font-medium text-white mb-2">Nozzle Size (mm)</label>
-            <select 
-              formControlName="nozzleSizes"
-              class="w-full bg-neutral-800 border border-zinc-700 text-white font-inter text-sm px-4 py-2.5 hover:border-zinc-600 focus:border-blue-400 focus:outline-none transition-colors duration-150"
-            >
-              <option *ngFor="let size of nozzleSizes" [value]="size">{{ size }} mm</option>
-            </select>
-          </div>
-
-          <div *ngIf="isSLA">
-            <label class="block font-inter text-sm font-medium text-white mb-2">Quantity</label>
-            <select 
-              formControlName="quantity"
-              class="w-full bg-neutral-800 border border-zinc-700 text-white font-inter text-sm px-4 py-2.5 hover:border-zinc-600 focus:border-blue-400 focus:outline-none transition-colors duration-150"
-            >
-              <option *ngFor="let qty of quantities" [value]="qty">{{ qty }} pcs</option>
-            </select>
-          </div>
-        </div>
-
-        <!-- Quantity Row for FDM -->
-        <div *ngIf="isFDM">
-          <label class="block font-inter text-sm font-medium text-white mb-2">Quantity</label>
-          <select 
-            formControlName="quantity"
-            class="w-full bg-neutral-800 border border-zinc-700 text-white font-inter text-sm px-4 py-2.5 hover:border-zinc-600 focus:border-blue-400 focus:outline-none transition-colors duration-150"
-          >
-            <option *ngFor="let qty of quantities" [value]="qty">{{ qty }} pcs</option>
-          </select>
-        </div>
-
-        <!-- Notes Section -->
-        <div>
-          <label class="block font-inter text-sm font-medium text-white mb-2">Notes</label>
-          <textarea 
-            formControlName="notes"
-            rows="4" 
-            placeholder="If you have any additional notes about the production process, you can submit them here."
-            class="w-full bg-neutral-800 border border-zinc-700 text-white placeholder-neutral-500 font-inter text-sm px-4 py-2.5 hover:border-zinc-600 focus:border-blue-400 focus:outline-none transition-colors duration-150 resize-none"
-          ></textarea>
-        </div>
-
-        <!-- Price Estimation Card -->
-        <div class="bg-neutral-800 border border-zinc-700 border-l-4 p-4 hover:border-zinc-600 transition-colors duration-150"
-             [ngClass]="{'border-l-green-500': estimations, 'border-l-blue-500': isCalculating, 'border-l-yellow-500': !estimations && !isCalculating}">
-          <h3 class="font-inter text-sm font-semibold text-white mb-3">Estimated Price and Filament Usage</h3>
-          
-          <!-- Calculating State -->
-          <div class="flex items-center justify-center py-4" *ngIf="isCalculating">
-            <div class="w-6 h-6 border-2 border-blue-400 border-t-transparent rounded-full animate-spin mr-3"></div>
-            <span class="font-inter text-sm text-blue-400">Calculating...</span>
-          </div>
-          
-          <!-- Estimation Result -->
-          <div *ngIf="estimations && !isCalculating">
-            <div class="flex justify-between items-center mb-2">
-              <span class="font-inter text-sm text-neutral-400">Material Usage:</span>
-              <span class="font-inter text-base font-semibold text-white">{{ estimations.estimated_weight }}g</span>
-            </div>
-            <div class="flex justify-between items-center">
-              <span class="font-inter text-sm text-neutral-400">Estimated Price:</span>
-              <span class="font-inter text-xl font-semibold text-green-400">{{ estimations.estimated_cost }} TL</span>
-            </div>
-            <div class="mt-3 pt-3 border-t border-zinc-700">
-              <button 
-                type="button"
-                (click)="calculateEstimation()"
-                class="w-full py-2 bg-neutral-700 border border-zinc-600 text-white font-inter text-xs hover:bg-neutral-600 transition-colors duration-150"
-              >
-                Recalculate
-              </button>
-            </div>
-          </div>
-          
-          <!-- No Estimation Yet -->
-          <div class="text-center py-4" *ngIf="!estimations && !isCalculating && !uploadedFileId">
-            <p class="font-inter text-sm text-neutral-500">Upload a file to see price estimation</p>
-          </div>
-          
-          <div class="text-center py-4" *ngIf="!estimations && !isCalculating && uploadedFileId">
-            <button 
-              type="button"
-              (click)="calculateEstimation()"
-              class="font-inter text-sm text-blue-400 hover:text-blue-300 transition-colors duration-150"
-            >
-              Calculate Estimation
-            </button>
-          </div>
-        </div>
-
-        <!-- Submit Button -->
-        <button 
-          type="submit"
-          [disabled]="orderForm.invalid || !uploadedFile"
-          class="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-inter font-semibold text-sm py-3 transition-colors duration-150 disabled:bg-neutral-700 disabled:text-neutral-500 disabled:cursor-not-allowed"
+        <!-- Upload Area / 3D Viewer -->
+        <div 
+          class="flex-1 bg-neutral-800 border border-zinc-700 flex items-center justify-center transition-colors duration-150 overflow-hidden"
+          [ngClass]="{
+            'pointer-events-none': isUploading || isFormLocked,
+            'hover:border-zinc-600 cursor-pointer': !isUploading && !isFormLocked,
+            'opacity-60': isFormLocked
+          }"
+          (dragover)="onDragOver($event)"
+          (drop)="onDrop($event)"
+          (click)="!isUploading && !isFormLocked && fileInput.click()"
         >
-          Submit Order
-        </button>
+          <input 
+            #fileInput 
+            type="file" 
+            class="hidden" 
+            accept=".stl,.obj,.3mf"
+            [disabled]="isFormLocked"
+            (change)="onFileSelected($event)"
+          />
 
-        <!-- Validation Messages -->
-        <div *ngIf="orderForm.invalid && orderForm.touched" class="bg-red-900/20 border border-red-700 border-l-4 border-l-red-500 p-3">
-          <p class="font-inter text-sm text-red-400">Please fill all required fields before submitting.</p>
-        </div>
+          <!-- Uploading State -->
+          <div class="text-center" *ngIf="isUploading">
+            <div class="w-16 h-16 mx-auto mb-4 border-4 border-blue-400 border-t-transparent rounded-full animate-spin"></div>
+            <p class="font-inter text-white font-medium mb-2">Uploading {{ uploadedFileName }}...</p>
+            <p class="font-inter text-sm text-blue-400">Please wait</p>
+          </div>
 
-        <div *ngIf="!uploadedFile && orderForm.touched" class="bg-yellow-900/20 border border-yellow-700 border-l-4 border-l-yellow-500 p-3">
-          <p class="font-inter text-sm text-yellow-400">Please upload a 3D model file.</p>
+          <!-- No File State -->
+          <div class="text-center" *ngIf="!uploadedFile && !isUploading">
+            <svg class="w-16 h-16 mx-auto text-neutral-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+            </svg>
+            <p class="font-inter text-white font-medium mb-2">Upload your file to start process...</p>
+            <p class="font-inter text-sm text-neutral-500">Drag & drop or click to browse (.stl, .obj, .3mf)</p>
+          </div>
+
+          <!-- File Uploaded State -->
+          <div class="text-center" *ngIf="uploadedFile && !isUploading && uploadedFileId">
+            <svg class="w-20 h-20 mx-auto text-green-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <p class="font-inter text-white font-medium mb-2">{{ uploadedFileName }}</p>
+            <p class="font-inter text-sm text-green-400 mb-1">File uploaded successfully</p>
+            <p class="font-inter text-xs text-neutral-500 mb-4">File ID: {{ uploadedFileId }}</p>
+            
+            <!-- Change File Button - LOCKED when form is locked -->
+            <button 
+              *ngIf="!isFormLocked"
+              type="button"
+              class="mt-2 px-4 py-2 bg-neutral-700 border border-zinc-600 text-white font-inter text-sm hover:bg-neutral-600 transition-colors duration-150"
+              (click)="fileInput.click(); $event.stopPropagation()"
+            >
+              Change File
+            </button>
+
+            <!-- Locked Message -->
+            <div *ngIf="isFormLocked" class="mt-2 px-4 py-2 bg-neutral-800 border border-zinc-700 text-neutral-500 font-inter text-sm">
+               File Locked
+            </div>
+          </div>
         </div>
-      </form>
+      </div>
+
+      <!-- Right Panel - Ordering Form with Internal Scrollbar Only -->
+      <div class="bg-neutral-900 border border-zinc-700 hover:border-zinc-600 transition-colors duration-150 shadow-xl h-full flex flex-col overflow-hidden">
+        <div class="p-6 flex-shrink-0">
+          <h2 class="font-inter text-2xl font-semibold text-white">Ordering Form</h2>
+        </div>
+        
+        <!-- ADD CLASS: form-scroll-container for auto-scroll -->
+        <div class="flex-1 overflow-y-auto custom-scrollbar px-6 pb-6 form-scroll-container">
+          <form [formGroup]="orderForm" (ngSubmit)="onSubmit()" class="space-y-5">
+            
+            <!-- Order Type & Material Row -->
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block font-inter text-sm font-medium text-white mb-2">Select Printing Technology</label>
+                <select 
+                  formControlName="orderType"
+                  [disabled]="isFormLocked"
+                  class="w-full bg-neutral-800 border border-zinc-700 text-white font-inter text-sm px-4 py-2.5 hover:border-zinc-600 focus:border-blue-400 focus:outline-none transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <option *ngFor="let type of orderTypes" [value]="type">{{ type }}</option>
+                </select>
+              </div>
+              
+              <div>
+                <label class="block font-inter text-sm font-medium text-white mb-2">Select Material</label>
+                <select 
+                  formControlName="material"
+                  [disabled]="isFormLocked"
+                  class="w-full bg-neutral-800 border border-zinc-700 text-white font-inter text-sm px-4 py-2.5 hover:border-zinc-600 focus:border-blue-400 focus:outline-none transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <option *ngFor="let material of (isFDM ? fdmMaterials : slaMaterials)" [value]="material">
+                    {{ material }}
+                  </option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Color & Brand Row -->
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block font-inter text-sm font-medium text-white mb-2">Select Color</label>
+                <select 
+                  formControlName="color"
+                  [disabled]="isFormLocked"
+                  class="w-full bg-neutral-800 border border-zinc-700 text-white font-inter text-sm px-4 py-2.5 hover:border-zinc-600 focus:border-blue-400 focus:outline-none transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <option *ngFor="let color of colors" [value]="color">{{ color }}</option>
+                </select>
+              </div>
+              
+              <div>
+                <label class="block font-inter text-sm font-medium text-white mb-2">Select Material Brand</label>
+                <select 
+                  formControlName="brand"
+                  [disabled]="isFormLocked"
+                  class="w-full bg-neutral-800 border border-zinc-700 text-white font-inter text-sm px-4 py-2.5 hover:border-zinc-600 focus:border-blue-400 focus:outline-none transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <option *ngFor="let brand of brands" [value]="brand">{{ brand }}</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Layer Height & Bottom Texture Row (FDM Only) -->
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block font-inter text-sm font-medium text-white mb-2">Layer Height (mm)</label>
+                <select 
+                  formControlName="layerHeight"
+                  [disabled]="isFormLocked"
+                  class="w-full bg-neutral-800 border border-zinc-700 text-white font-inter text-sm px-4 py-2.5 hover:border-zinc-600 focus:border-blue-400 focus:outline-none transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <option *ngFor="let height of layerHeights" [value]="height">{{ height }} mm</option>
+                </select>
+              </div>
+              
+              <div *ngIf="isFDM">
+                <label class="block font-inter text-sm font-medium text-white mb-2">Select Bottom Texture</label>
+                <select 
+                  formControlName="bottomTexture"
+                  [disabled]="isFormLocked"
+                  class="w-full bg-neutral-800 border border-zinc-700 text-white font-inter text-sm px-4 py-2.5 hover:border-zinc-600 focus:border-blue-400 focus:outline-none transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <option *ngFor="let texture of bottomTextures" [value]="texture">{{ texture }}</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Infill & Nozzle Size/Quantity Row -->
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block font-inter text-sm font-medium text-white mb-2">Infill (%)</label>
+                <select 
+                  formControlName="infill"
+                  [disabled]="isFormLocked"
+                  class="w-full bg-neutral-800 border border-zinc-700 text-white font-inter text-sm px-4 py-2.5 hover:border-zinc-600 focus:border-blue-400 focus:outline-none transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <option *ngFor="let infill of infillOptions" [value]="infill">{{ infill }}%</option>
+                </select>
+              </div>
+              
+              <div *ngIf="isFDM">
+                <label class="block font-inter text-sm font-medium text-white mb-2">Nozzle Size (mm)</label>
+                <select 
+                  formControlName="nozzleSizes"
+                  [disabled]="isFormLocked"
+                  class="w-full bg-neutral-800 border border-zinc-700 text-white font-inter text-sm px-4 py-2.5 hover:border-zinc-600 focus:border-blue-400 focus:outline-none transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <option *ngFor="let size of nozzleSizes" [value]="size">{{ size }} mm</option>
+                </select>
+              </div>
+
+              <div *ngIf="isSLA">
+                <label class="block font-inter text-sm font-medium text-white mb-2">Quantity</label>
+                <select 
+                  formControlName="quantity"
+                  [disabled]="isFormLocked"
+                  class="w-full bg-neutral-800 border border-zinc-700 text-white font-inter text-sm px-4 py-2.5 hover:border-zinc-600 focus:border-blue-400 focus:outline-none transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <option *ngFor="let qty of quantities" [value]="qty">{{ qty }} pcs</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Quantity Row for FDM -->
+            <div *ngIf="isFDM">
+              <label class="block font-inter text-sm font-medium text-white mb-2">Quantity</label>
+              <select 
+                formControlName="quantity"
+                [disabled]="isFormLocked"
+                class="w-full bg-neutral-800 border border-zinc-700 text-white font-inter text-sm px-4 py-2.5 hover:border-zinc-600 focus:border-blue-400 focus:outline-none transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <option *ngFor="let qty of quantities" [value]="qty">{{ qty }} pcs</option>
+              </select>
+            </div>
+
+            <!-- Notes Section -->
+            <div>
+              <label class="block font-inter text-sm font-medium text-white mb-2">Notes</label>
+              <textarea 
+                formControlName="notes"
+                [disabled]="isFormLocked"
+                rows="3" 
+                placeholder="If you have any additional notes about the production process, you can submit them here."
+                class="w-full bg-neutral-800 border border-zinc-700 text-white placeholder-neutral-500 font-inter text-sm px-4 py-2.5 hover:border-zinc-600 focus:border-blue-400 focus:outline-none transition-colors duration-150 resize-none disabled:opacity-50 disabled:cursor-not-allowed"
+              ></textarea>
+            </div>
+
+            <!-- Price Estimation Card -->
+            <div class="bg-neutral-800 border border-zinc-700 border-l-4 p-4 hover:border-zinc-600 transition-colors duration-150"
+                 [ngClass]="{
+                   'border-l-green-500': estimations && !isFormLocked, 
+                   'border-l-blue-500': isCalculating, 
+                   'border-l-yellow-500': !estimations && !isCalculating && !isFormLocked,
+                   'border-l-gray-500 opacity-60': isFormLocked
+                 }">
+              <h3 class="font-inter text-sm font-semibold text-white mb-3">Estimated Price and Filament Usage</h3>
+              
+              <!-- Calculating State -->
+              <div class="flex items-center justify-center py-4" *ngIf="isCalculating">
+                <div class="w-6 h-6 border-2 border-blue-400 border-t-transparent rounded-full animate-spin mr-3"></div>
+                <span class="font-inter text-sm text-blue-400">Calculating...</span>
+              </div>
+              
+              <!-- Estimation Result -->
+              <div *ngIf="estimations && !isCalculating">
+                <div class="flex justify-between items-center mb-2">
+                  <span class="font-inter text-sm text-neutral-400">Material Usage:</span>
+                  <span class="font-inter text-base font-semibold text-white">{{ estimations.estimated_weight }}g</span>
+                </div>
+                <div class="flex justify-between items-center">
+                  <span class="font-inter text-sm text-neutral-400">Estimated Price:</span>
+                  <span class="font-inter text-xl font-semibold text-green-400">{{ estimations.estimated_cost }} TL</span>
+                </div>
+                
+                <!-- Recalculate Button - LOCKED when form is locked -->
+                <div class="mt-3 pt-3 border-t border-zinc-700" *ngIf="!isFormLocked">
+                  <button 
+                    type="button"
+                    (click)="calculateEstimation()"
+                    class="w-full py-2 bg-neutral-700 border border-zinc-600 text-white font-inter text-xs hover:bg-neutral-600 transition-colors duration-150"
+                  >
+                    Recalculate
+                  </button>
+                </div>
+
+                <!-- Locked State -->
+                <div class="mt-3 pt-3 border-t border-zinc-700" *ngIf="isFormLocked">
+                  <div class="w-full py-2 bg-neutral-800 border border-zinc-700 text-neutral-500 font-inter text-xs text-center">
+                     Calculation Locked
+                  </div>
+                </div>
+              </div>
+              
+              <!-- No Estimation Yet -->
+              <div class="text-center py-4" *ngIf="!estimations && !isCalculating && !uploadedFileId">
+                <p class="font-inter text-sm text-neutral-500">Upload a file to see price estimation</p>
+              </div>
+              
+              <div class="text-center py-4" *ngIf="!estimations && !isCalculating && uploadedFileId && !isFormLocked">
+                <button 
+                  type="button"
+                  (click)="calculateEstimation()"
+                  class="font-inter text-sm text-blue-400 hover:text-blue-300 transition-colors duration-150"
+                >
+                  Calculate Estimation
+                </button>
+              </div>
+            </div>
+
+            <!-- Submit Button -->
+            <button 
+              type="submit"
+              [disabled]="orderForm.invalid || !uploadedFile || isFormLocked"
+              class="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-inter font-semibold text-sm py-3 transition-colors duration-150 disabled:bg-neutral-700 disabled:text-neutral-500 disabled:cursor-not-allowed"
+            >
+              {{ isFormLocked ? 'Order Submitted' : 'Submit Order' }}
+            </button>
+
+            <!-- ✅ SUCCESS MESSAGE CARD -->
+            <div *ngIf="orderSubmitted" 
+                 class="bg-green-900/20 border-2 border-green-500 p-6 animate-fadeIn">
+              
+              <!-- Success Icon -->
+              <div class="flex justify-center mb-4">
+                <svg class="w-16 h-16 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+              </div>
+
+              <!-- Success Message -->
+              <h3 class="font-inter text-xl font-bold text-green-400 text-center mb-2">
+                ✅ Order Confirmed!
+              </h3>
+              
+              <p class="font-inter text-sm text-neutral-300 text-center mb-1">
+                Your order has been successfully created.
+              </p>
+              
+              <p class="font-inter text-xs text-neutral-400 text-center mb-6">
+                <span class="font-semibold text-white">Order ID:</span> {{ submittedOrderId }}
+              </p>
+
+              <!-- Action Buttons -->
+              <div class="grid grid-cols-2 gap-3">
+                <button 
+                  type="button"
+                  (click)="goToMyOrders()"
+                  class="w-full bg-blue-500 hover:bg-blue-600 text-white font-inter font-semibold text-sm py-3 transition-colors duration-150 flex items-center justify-center gap-2"
+                >
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                  </svg>
+                  My Orders
+                </button>
+
+                <button 
+                  type="button"
+                  (click)="createNewOrder()"
+                  class="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-inter font-semibold text-sm py-3 transition-colors duration-150 flex items-center justify-center gap-2"
+                >
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                  </svg>
+                  New Order
+                </button>
+              </div>
+            </div>
+
+            <!-- Validation Messages -->
+            <div *ngIf="orderForm.invalid && orderForm.touched && !orderSubmitted" 
+                 class="bg-red-900/20 border border-red-700 border-l-4 border-l-red-500 p-3">
+              <p class="font-inter text-sm text-red-400">Please fill all required fields before submitting.</p>
+            </div>
+
+            <div *ngIf="!uploadedFile && orderForm.touched && !orderSubmitted" 
+                 class="bg-yellow-900/20 border border-yellow-700 border-l-4 border-l-yellow-500 p-3">
+              <p class="font-inter text-sm text-yellow-400">Please upload a 3D model file.</p>
+            </div>
+          </form>
+        </div>
+      </div>
+
     </div>
-
+    
   </div>
 </div>

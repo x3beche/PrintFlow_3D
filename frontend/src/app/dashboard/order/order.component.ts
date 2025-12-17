@@ -4,6 +4,7 @@ import { SidebarStateService } from 'src/app/services/sidebar-state.service';
 import { Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { OrderService, FileUploadResponse, EstimationRequest } from './order.service';
+import { Router } from '@angular/router';
 import { 
   BottomTexture, 
   Brand, 
@@ -32,6 +33,11 @@ export class OrderComponent implements OnInit, OnDestroy {
   isCalculating: boolean = false;
   estimations: OrderEstimations | null = null;
 
+  // New properties for order success state
+  orderSubmitted: boolean = false;
+  submittedOrderId: string = '';
+  isFormLocked: boolean = false;
+
   // Enums for template
   orderTypes = Object.values(OrderType);
   fdmMaterials = Object.values(FDMMaterial);
@@ -48,7 +54,8 @@ export class OrderComponent implements OnInit, OnDestroy {
   constructor(
     private sidebarService: SidebarStateService,
     private orderService: OrderService,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private router: Router
   ) {
     this.sidebarCollapsed = this.sidebarService.isCollapsed;
   }
@@ -85,9 +92,8 @@ export class OrderComponent implements OnInit, OnDestroy {
   setupAutoCalculation(): void {
     // Watch entire form for changes (excluding notes)
     this.formSubscription = this.orderForm.valueChanges.pipe(
-      debounceTime(500), // Wait 500ms after user stops typing/selecting
+      debounceTime(500),
       distinctUntilChanged((prev, curr) => {
-        // Only trigger if relevant fields changed
         return prev.orderType === curr.orderType &&
                prev.material === curr.material &&
                prev.brand === curr.brand &&
@@ -96,7 +102,7 @@ export class OrderComponent implements OnInit, OnDestroy {
                prev.quantity === curr.quantity;
       })
     ).subscribe(() => {
-      if (this.uploadedFileId) {
+      if (this.uploadedFileId && !this.isFormLocked) {
         console.log('Form changed, recalculating estimation...');
         this.calculateEstimation();
       }
@@ -108,37 +114,39 @@ export class OrderComponent implements OnInit, OnDestroy {
       this.orderForm.patchValue({
         material: FDMMaterial.PLA,
         bottomTexture: BottomTexture.PEI
-      }, { emitEvent: false }); // Don't trigger valueChanges
+      }, { emitEvent: false });
     } else if (type === OrderType.SLA) {
       this.orderForm.patchValue({
         material: SLAMaterial.STANDARD_RESIN
-      }, { emitEvent: false }); // Don't trigger valueChanges
+      }, { emitEvent: false });
     }
     
-    // Manually trigger calculation after order type change
-    if (this.uploadedFileId) {
+    if (this.uploadedFileId && !this.isFormLocked) {
       setTimeout(() => this.calculateEstimation(), 100);
     }
   }
 
   onFileSelected(event: Event): void {
+    if (this.isFormLocked) return;
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
-      this.handleFileUpload(input.files[0],);
+      this.handleFileUpload(input.files[0]);
     }
   }
 
   onDragOver(event: DragEvent): void {
+    if (this.isFormLocked) return;
     event.preventDefault();
     event.stopPropagation();
   }
 
   onDrop(event: DragEvent): void {
+    if (this.isFormLocked) return;
     event.preventDefault();
     event.stopPropagation();
     
     if (event.dataTransfer?.files && event.dataTransfer.files.length > 0) {
-      this.handleFileUpload(event.dataTransfer.files[0],);
+      this.handleFileUpload(event.dataTransfer.files[0]);
     }
   }
 
@@ -162,7 +170,6 @@ export class OrderComponent implements OnInit, OnDestroy {
         this.uploadedFileId = response.file_id;
         console.log('File uploaded successfully:', response);
         
-        // Auto-calculate estimation after upload
         this.calculateEstimation();
       },
       error: (error) => {
@@ -184,8 +191,8 @@ export class OrderComponent implements OnInit, OnDestroy {
   }
 
   calculateEstimation(): void {
-    if (!this.uploadedFileId) {
-      console.warn('No file uploaded yet');
+    if (!this.uploadedFileId || this.isFormLocked) {
+      console.warn('No file uploaded yet or form is locked');
       return;
     }
 
@@ -223,7 +230,6 @@ export class OrderComponent implements OnInit, OnDestroy {
         this.isCalculating = false;
         console.error('Estimation calculation failed:', error);
         
-        // Show user-friendly error message
         const errorMsg = error.error?.detail || 'Failed to calculate estimation. Please try again.';
         alert(errorMsg);
       }
@@ -273,8 +279,17 @@ export class OrderComponent implements OnInit, OnDestroy {
     this.orderService.createNewOrder(orderData).subscribe({
       next: (response) => {
         console.log('Order created successfully:', response);
-        alert(`Order submitted successfully! Order ID: ${response.order_id}`);
-        this.resetForm();
+        
+        // Lock the form and show success message
+        this.isFormLocked = true;
+        this.orderSubmitted = true;
+        this.submittedOrderId = response.order_id;
+        this.orderForm.disable();
+
+        // Scroll to bottom to show success message
+        setTimeout(() => {
+          this.scrollToBottom();
+        }, 100);
       },
       error: (error) => {
         console.error('Error creating order:', error);
@@ -282,6 +297,27 @@ export class OrderComponent implements OnInit, OnDestroy {
         alert(errorMsg);
       }
     });
+  }
+
+  // Scroll to bottom of form container
+  scrollToBottom(): void {
+    const scrollContainer = document.querySelector('.form-scroll-container');
+    if (scrollContainer) {
+      scrollContainer.scrollTo({
+        top: scrollContainer.scrollHeight,
+        behavior: 'smooth'
+      });
+    }
+  }
+
+  // Navigate to orders page
+  goToMyOrders(): void {
+    window.location.href = "/order/list"
+  }
+
+  // Create new order - reload page
+  createNewOrder(): void {
+    window.location.reload();
   }
 
   resetForm(): void {
@@ -301,6 +337,10 @@ export class OrderComponent implements OnInit, OnDestroy {
     this.uploadedFileName = '';
     this.uploadedFileId = '';
     this.estimations = null;
+    this.orderSubmitted = false;
+    this.submittedOrderId = '';
+    this.isFormLocked = false;
+    this.orderForm.enable();
   }
 
   ngOnDestroy(): void {
