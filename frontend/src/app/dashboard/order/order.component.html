@@ -6,21 +6,22 @@
   <app-header header_title="Order Page"></app-header>
   
   <!-- Main container -->
-  <div class="flex-1 p-4 grid grid-cols-2 gap-3 bg-black overflow-auto">
+  <div class="flex-1 p-4 grid grid-cols-2 gap-3 bg-black overflow-hidden">
     
     <!-- Left Panel - 3D Model Viewer -->
-    <div class="bg-neutral-900 border border-zinc-700 p-4 hover:border-zinc-600 transition-colors duration-150 flex flex-col">
-      <div class="flex items-center justify-between mb-4">
+    <div class="bg-neutral-900 border border-zinc-700 p-4 hover:border-zinc-600 transition-colors duration-150 flex flex-col overflow-hidden">
+      <div class="flex items-center justify-between mb-4 flex-shrink-0">
         <h2 class="font-inter text-xl font-semibold text-white">3D View of Current Uploaded Model</h2>
         <span class="font-inter text-sm text-neutral-400" *ngIf="uploadedFileName">{{ uploadedFileName }}</span>
       </div>
       
       <!-- Upload Area / 3D Viewer -->
       <div 
-        class="flex-1 bg-neutral-800 border border-zinc-700 flex items-center justify-center min-h-[400px] hover:border-zinc-600 transition-colors duration-150 cursor-pointer"
+        class="flex-1 bg-neutral-800 border border-zinc-700 flex items-center justify-center min-h-[400px] hover:border-zinc-600 transition-colors duration-150 cursor-pointer overflow-hidden"
+        [ngClass]="{'pointer-events-none': isUploading}"
         (dragover)="onDragOver($event)"
         (drop)="onDrop($event)"
-        (click)="fileInput.click()"
+        (click)="!isUploading && fileInput.click()"
       >
         <input 
           #fileInput 
@@ -30,7 +31,15 @@
           (change)="onFileSelected($event)"
         />
         
-        <div class="text-center" *ngIf="!uploadedFile">
+        <!-- Uploading State -->
+        <div class="text-center" *ngIf="isUploading">
+          <div class="w-16 h-16 mx-auto mb-4 border-4 border-blue-400 border-t-transparent rounded-full animate-spin"></div>
+          <p class="font-inter text-white font-medium mb-2">Uploading {{ uploadedFileName }}...</p>
+          <p class="font-inter text-sm text-blue-400">Please wait</p>
+        </div>
+
+        <!-- No File State -->
+        <div class="text-center" *ngIf="!uploadedFile && !isUploading">
           <svg class="w-16 h-16 mx-auto text-neutral-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
           </svg>
@@ -38,15 +47,17 @@
           <p class="font-inter text-sm text-neutral-500">Drag & drop or click to browse (.stl, .obj, .3mf)</p>
         </div>
 
-        <div class="text-center" *ngIf="uploadedFile">
+        <!-- File Uploaded State -->
+        <div class="text-center" *ngIf="uploadedFile && !isUploading && uploadedFileId">
           <svg class="w-20 h-20 mx-auto text-green-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
           </svg>
           <p class="font-inter text-white font-medium mb-2">{{ uploadedFileName }}</p>
-          <p class="font-inter text-sm text-green-400">File uploaded successfully</p>
+          <p class="font-inter text-sm text-green-400 mb-1">File uploaded successfully</p>
+          <p class="font-inter text-xs text-neutral-500 mb-4">File ID: {{ uploadedFileId }}</p>
           <button 
             type="button"
-            class="mt-4 px-4 py-2 bg-neutral-700 border border-zinc-600 text-white font-inter text-sm hover:bg-neutral-600 transition-colors duration-150"
+            class="mt-2 px-4 py-2 bg-neutral-700 border border-zinc-600 text-white font-inter text-sm hover:bg-neutral-600 transition-colors duration-150"
             (click)="fileInput.click(); $event.stopPropagation()"
           >
             Change File
@@ -55,8 +66,8 @@
       </div>
     </div>
 
-    <!-- Right Panel - Ordering Form -->
-    <div class="bg-neutral-900 border border-zinc-700 p-6 hover:border-zinc-600 transition-colors duration-150 overflow-y-auto">
+    <!-- Right Panel - Ordering Form with Custom Scrollbar -->
+    <div class="bg-neutral-900 border border-zinc-700 p-6 hover:border-zinc-600 transition-colors duration-150 overflow-y-auto custom-scrollbar">
       <h2 class="font-inter text-2xl font-semibold text-white mb-6">Ordering Form</h2>
       
       <form [formGroup]="orderForm" (ngSubmit)="onSubmit()" class="space-y-6">
@@ -188,13 +199,43 @@
         </div>
 
         <!-- Price Estimation Card -->
-        <div class="bg-neutral-800 border border-zinc-700 border-l-4 border-l-green-500 p-4 hover:border-zinc-600 transition-colors duration-150">
+        <div class="bg-neutral-800 border border-zinc-700 border-l-4 p-4 hover:border-zinc-600 transition-colors duration-150"
+             [ngClass]="{'border-l-green-500': estimations, 'border-l-blue-500': isCalculating, 'border-l-yellow-500': !estimations && !isCalculating}">
           <h3 class="font-inter text-sm font-semibold text-white mb-3">Estimated Price and Filament Usage</h3>
-          <div class="flex justify-between items-center" *ngIf="estimations">
-            <span class="font-inter text-sm text-neutral-400">{{ estimations.estimated_weight }}gr filament will be used</span>
-            <span class="font-inter text-xl font-semibold text-green-400">Estimated price {{ estimations.estimated_cost }} TL</span>
+          
+          <!-- Calculating State -->
+          <div class="flex items-center justify-center py-4" *ngIf="isCalculating">
+            <div class="w-6 h-6 border-2 border-blue-400 border-t-transparent rounded-full animate-spin mr-3"></div>
+            <span class="font-inter text-sm text-blue-400">Calculating...</span>
           </div>
-          <div class="text-center" *ngIf="!estimations">
+          
+          <!-- Estimation Result -->
+          <div *ngIf="estimations && !isCalculating">
+            <div class="flex justify-between items-center mb-2">
+              <span class="font-inter text-sm text-neutral-400">Material Usage:</span>
+              <span class="font-inter text-base font-semibold text-white">{{ estimations.estimated_weight }}g</span>
+            </div>
+            <div class="flex justify-between items-center">
+              <span class="font-inter text-sm text-neutral-400">Estimated Price:</span>
+              <span class="font-inter text-xl font-semibold text-green-400">{{ estimations.estimated_cost }} TL</span>
+            </div>
+            <div class="mt-3 pt-3 border-t border-zinc-700">
+              <button 
+                type="button"
+                (click)="calculateEstimation()"
+                class="w-full py-2 bg-neutral-700 border border-zinc-600 text-white font-inter text-xs hover:bg-neutral-600 transition-colors duration-150"
+              >
+                Recalculate
+              </button>
+            </div>
+          </div>
+          
+          <!-- No Estimation Yet -->
+          <div class="text-center py-4" *ngIf="!estimations && !isCalculating && !uploadedFileId">
+            <p class="font-inter text-sm text-neutral-500">Upload a file to see price estimation</p>
+          </div>
+          
+          <div class="text-center py-4" *ngIf="!estimations && !isCalculating && uploadedFileId">
             <button 
               type="button"
               (click)="calculateEstimation()"

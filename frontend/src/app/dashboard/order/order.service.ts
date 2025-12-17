@@ -3,7 +3,44 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { environment } from 'src/app/environment';
-import { OrderData } from './models';
+import { OrderData, OrderEstimations } from './models';
+
+export interface FileUploadResponse {
+  success: boolean;
+  file_id: string;
+  filename: string;
+  message: string;
+  file_info?: {
+    volume_mm3: number;
+    volume_cm3: number;
+  };
+}
+
+export interface EstimationRequest {
+  file_id: string;
+  material: string;
+  brand: string;
+  order_type: string;
+  infill: number;
+  layer_height: number;
+  quantity: number;
+}
+
+export interface EstimationResponse {
+  success: boolean;
+  estimated_weight: number;
+  estimated_cost: number;
+  cost_breakdown: {
+    material_cost: number;
+    brand_multiplier: number;
+    layer_height_multiplier: number;
+    order_type_multiplier: number;
+    service_fee: number;
+    quantity: number;
+    unit_cost: number;
+    total_cost: number;
+  };
+}
 
 @Injectable({
   providedIn: 'root'
@@ -12,6 +49,21 @@ export class OrderService {
   private apiUrl = `${environment.api}`;
 
   constructor(private http: HttpClient) { }
+
+  uploadFile(file: File): Observable<FileUploadResponse> {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    return this.http.post<FileUploadResponse>(`${this.apiUrl}/order/upload-file`, formData).pipe(
+      tap(response => console.log('File Upload Response:', response))
+    );
+  }
+
+  calculateEstimation(request: EstimationRequest): Observable<EstimationResponse> {
+    return this.http.post<EstimationResponse>(`${this.apiUrl}/order/calculate-estimation`, request).pipe(
+      tap(response => console.log('Estimation Response:', response))
+    );
+  }
 
   createNewOrder(orderData: OrderData): Observable<any> {
     return this.http.post(`${this.apiUrl}/order/new`, orderData).pipe(
