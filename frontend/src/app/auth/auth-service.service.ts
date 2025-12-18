@@ -31,6 +31,30 @@ export class AuthService {
     return localStorage.getItem(this.tokenKey);
   }
 
+  // Kullanıcı bilgilerini al
+  getUser(): any {
+    const userStr = localStorage.getItem("user");
+    return userStr ? JSON.parse(userStr) : null;
+  }
+
+  // Kullanıcının rolünü al
+  getUserRole(): string | null {
+    const user = this.getUser();
+    return user && user.role ? user.role : null;
+  }
+
+  // Kullanıcının belirli bir role sahip olup olmadığını kontrol et
+  hasRole(role: string): boolean {
+    const userRole = this.getUserRole();
+    return userRole === role;
+  }
+
+  // Kullanıcının birden fazla rolden birine sahip olup olmadığını kontrol et
+  hasAnyRole(roles: string[]): boolean {
+    const userRole = this.getUserRole();
+    return userRole ? roles.includes(userRole) : false;
+  }
+
   login(username: string, password: string): Observable<any> {
     // Create URL-encoded form data
 

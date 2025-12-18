@@ -5,6 +5,7 @@ import { ThemeService } from 'src/app/theme-service.service';
 import { SidebarStateService } from 'src/app/services/sidebar-state.service';
 import { Subscription } from 'rxjs';
 import { environment } from '../../environment';
+import { AuthService } from 'src/app/auth/auth-service.service';
 
 @Component({
   selector: 'app-sidebar',
@@ -30,13 +31,15 @@ export class ChatSidebarComponent implements OnInit, OnDestroy, AfterViewInit {
   isCollapsed = false;
   isInitialLoad = true; // İlk render'da animasyonu kapatmak için
   company_logo = '';
-  displayedText = 'K'; // Logo animasyonu için
+  displayedText = '3D'; // Logo animasyonu için
   isAnimating = false; // Animasyon durumu
+  userRole: string | null = null;
   private subscription?: Subscription;
 
   constructor(
     private themeService: ThemeService,
-    private sidebarService: SidebarStateService
+    private sidebarService: SidebarStateService,
+    private authService: AuthService
   ) {
     this.isCollapsed = this.sidebarService.isCollapsed;
   }
@@ -45,10 +48,11 @@ export class ChatSidebarComponent implements OnInit, OnDestroy, AfterViewInit {
     initFlowbite();
     this.company_logo = `${environment.api}/company_logo/`;
     this.themeService.switchToDarkMode();
-
+    this.userRole = this.authService.getUserRole();
+    console.log('User Role:', this.userRole);
     // Sayfa yüklendiğinde uncollapsed ise direkt "KIWIO" göster
     if (!this.isCollapsed) {
-      this.displayedText = 'KIWIO';
+      this.displayedText = '3DPrintFlow';
     }
 
     // Sidebar durumunu dinle
@@ -60,7 +64,7 @@ export class ChatSidebarComponent implements OnInit, OnDestroy, AfterViewInit {
         this.animateText();
       } else if (collapsed) {
         // Collapse edildiğinde hemen "K" göster
-        this.displayedText = 'K';
+        this.displayedText = '3D';
         this.isAnimating = false;
       }
     });
@@ -86,7 +90,7 @@ export class ChatSidebarComponent implements OnInit, OnDestroy, AfterViewInit {
    * "K" -> "KIWIO" şeklinde harfler sırayla yazılır
    */
   private animateText(): void {
-    const fullText = 'KIWIO';
+    const fullText = '3DPrintFlow';
     const duration = 600;
     const startTime = Date.now();
     this.isAnimating = true;
@@ -112,7 +116,7 @@ export class ChatSidebarComponent implements OnInit, OnDestroy, AfterViewInit {
 
   private styleText(text: string): string {
     return text.split('').map((char, index) => {
-      const color = index < 3 ? 'text-emerald-400' : 'text-white';
+      const color = index < 2 ? 'text-emerald-400' : 'text-white';
       return `<span class="${color}">${char}</span>`;
     }).join('');
   }

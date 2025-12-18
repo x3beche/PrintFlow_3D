@@ -30,7 +30,7 @@
       <!-- Logo -->
       <div class="flex items-center justify-center">
         <span class="self-center text-2xl font-semibold font-inter dark:text-white">
-          K
+          3D
         </span>
       </div>
     </div>
@@ -51,10 +51,8 @@
 
     <!-- Navigation Buttons -->
     <div class="flex flex-col">
-      <!-- Home Button -->
-  
-      <!-- New Order Button -->
-      <button routerLink="/order/new"
+      <!-- New Order Button - Sadece "user" rolü için -->
+      <button *ngIf="userRole === 'user'" routerLink="/order/new"
         class="flex items-center py-2.5 w-full h-11 hover:bg-gray-100 dark:hover:bg-zinc-800 transition" [ngClass]="{
           'justify-start gap-3': !isCollapsed,
           'justify-center flex-col gap-1': isCollapsed
@@ -67,10 +65,10 @@
         </svg>
         <span *ngIf="!isCollapsed" class="font-medium text-sm font-inter text-zinc-100">New Order</span>
       </button>
-      <hr class="border-gray-300 dark:border-zinc-700" />
+      <hr *ngIf="userRole === 'user'" class="border-gray-300 dark:border-zinc-700" />
 
-      <!-- Orders Button (First) -->
-      <button routerLink="/order/list"
+      <!-- Orders Button - Sadece "user" rolü için -->
+      <button *ngIf="userRole === 'user'" routerLink="/order/list"
         class="flex items-center py-2.5 w-full h-11 hover:bg-gray-100 dark:hover:bg-zinc-800 transition" [ngClass]="{
           'justify-start gap-3': !isCollapsed,
           'justify-center flex-col gap-1': isCollapsed
@@ -83,26 +81,10 @@
         </svg>
         <span *ngIf="!isCollapsed" class="font-medium text-sm font-inter text-zinc-100">Orders</span>
       </button>
-      <hr class="border-gray-300 dark:border-zinc-700" />
+      <hr *ngIf="userRole === 'user'" class="border-gray-300 dark:border-zinc-700" />
 
-      <!-- Orders Button (Second) 
-      <button routerLink="/manufacturer/order/list"
-        class="flex items-center py-2.5 w-full h-11 hover:bg-gray-100 dark:hover:bg-zinc-800 transition" [ngClass]="{
-          'justify-start gap-3': !isCollapsed,
-          'justify-center flex-col gap-1': isCollapsed
-        }" draggable="false">
-        <svg [ngClass]="{'w-5 h-5 ms-3': !isCollapsed, 'w-6 h-6': isCollapsed }"
-          class="text-gray-800 dark:text-white flex-shrink-0" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
-          fill="none" viewBox="0 0 24 24">
-          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="M18 6H6m12 4H6m12 4H6m12 4H6" />
-        </svg>
-        <span *ngIf="!isCollapsed" class="font-medium text-sm font-inter text-zinc-100">Orders</span>
-      </button>
-      <hr class="border-gray-300 dark:border-zinc-700" />-->
-
-      <!-- Pool Button -->
-      <button routerLink="/manufacturer/order/pool"
+      <!-- Pool Button - Sadece "manufacturer" rolü için -->
+      <button *ngIf="userRole === 'manufacturer'" routerLink="/manufacturer/order/pool"
         class="flex items-center py-2.5 w-full h-11 hover:bg-gray-100 dark:hover:bg-zinc-800 transition" [ngClass]="{
           'justify-start gap-3': !isCollapsed,
           'justify-center flex-col gap-1': isCollapsed
@@ -115,9 +97,9 @@
         </svg>
         <span *ngIf="!isCollapsed" class="font-medium text-sm font-inter text-zinc-100">Pool</span>
       </button>
-      <hr class="border-gray-300 dark:border-zinc-700" />
+      <hr *ngIf="userRole === 'manufacturer'" class="border-gray-300 dark:border-zinc-700" />
     </div>
 
-    <hr *ngIf="isCollapsed" class="border-gray-300 dark:border-zinc-700" />
+    
   </div>
 </aside>
