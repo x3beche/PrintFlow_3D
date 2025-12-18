@@ -48,7 +48,7 @@ def get_user(email: str) -> User:
 
 def get_user_with_username(username: str, role: UserRoles = None) -> User:
     user: dict = users.find_one(
-        {"id": username, "role": {"$in": ["user", "admin", "manager"]}}
+        {"id": username, "role": {"$in": ["user", "admin", "manager", "manufacturer"]}}
     )
     if user:
         user_ = User(**user)
