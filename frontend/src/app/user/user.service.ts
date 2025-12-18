@@ -7,6 +7,13 @@ import {
   UserSettingsPasswordCredentials,
   UserSettingsProfileCredentials,
 } from "../models/user";
+
+export interface ManufacturerDetails {
+  company: string;
+  name: string;
+  phone: string;
+}
+
 @Injectable({
   providedIn: "root",
 })
@@ -15,6 +22,7 @@ export class UserService {
   private updateUserApiUrl = `${environment.api}/update_profile/`;
   private updateUserPasswordApiUrl = `${environment.api}/update_password/`;
   private updateProfilePictureApiUrl = `${environment.api}/update_profile_picture/`;
+  private manufacturerDetailsApiUrl = `${environment.api}/manufacturer_details/`;
 
   constructor(private http: HttpClient) {}
 
@@ -42,5 +50,14 @@ export class UserService {
       reportProgress: true,
       observe: "events",
     });
+  }
+
+  // Manufacturer Details Methods
+  getManufacturerDetails(): Observable<ManufacturerDetails> {
+    return this.http.get<ManufacturerDetails>(this.manufacturerDetailsApiUrl);
+  }
+
+  updateManufacturerDetails(details: ManufacturerDetails): Observable<any> {
+    return this.http.post<any>(this.manufacturerDetailsApiUrl, details);
   }
 }

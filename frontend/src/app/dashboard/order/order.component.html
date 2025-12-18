@@ -6,10 +6,8 @@
 >
   <app-header header_title="Order Page"></app-header>
   
-  <!-- Main container - Fixed height, no main scrollbar -->
   <div class="flex-1 p-4 bg-black overflow-hidden flex items-center justify-center">
     
-    <!-- Centered Card Container - Increased width -->
     <div class="w-full max-w-[73%] h-full grid grid-cols-2 gap-3">
       
       <!-- Left Panel - 3D Model Viewer -->
@@ -59,9 +57,17 @@
           <!-- File Uploaded State with Preview -->
           <div class="w-full h-full flex flex-col" *ngIf="uploadedFile && !isUploading && uploadedFileId">
             
-            <!-- Preview Image (if available) -->
+            <!-- ✅ Loading Preview State -->
+            <div *ngIf="isLoadingPreview" class="flex-1 flex items-center justify-center">
+              <div class="text-center">
+                <div class="w-12 h-12 mx-auto mb-4 border-4 border-blue-400 border-t-transparent rounded-full animate-spin"></div>
+                <p class="font-inter text-sm text-blue-400">Loading preview...</p>
+              </div>
+            </div>
+
+            <!-- Preview Image (if available and loaded) -->
             <div 
-              *ngIf="previewImageUrl" 
+              *ngIf="previewImageUrl && !isLoadingPreview" 
               class="flex-1 bg-neutral-800/50 flex items-center justify-center overflow-hidden mb-4"
             >
               <img 
@@ -72,7 +78,7 @@
             </div>
 
             <!-- No Preview Fallback -->
-            <div *ngIf="!previewImageUrl" class="flex-1 flex items-center justify-center">
+            <div *ngIf="!previewImageUrl && !isLoadingPreview" class="flex-1 flex items-center justify-center">
               <div class="text-center">
                 <svg class="w-20 h-20 mx-auto text-green-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -88,7 +94,6 @@
               <p class="font-inter text-white font-medium mb-1 truncate">{{ uploadedFileName }}</p>
               <p class="font-inter text-xs text-neutral-500 mb-3">File ID: {{ uploadedFileId }}</p>
               
-              <!-- Change File Button -->
               <button 
                 *ngIf="!isFormLocked"
                 type="button"
@@ -98,7 +103,6 @@
                 Change File
               </button>
 
-              <!-- Locked Message -->
               <div *ngIf="isFormLocked" class="w-full px-4 py-2 bg-neutral-800 border border-zinc-700 text-neutral-500 font-inter text-sm text-center">
                 🔒 File Locked
               </div>
@@ -107,13 +111,12 @@
         </div>
       </div>
 
-      <!-- Right Panel - Ordering Form with Internal Scrollbar Only -->
+      <!-- Right Panel - Ordering Form -->
       <div class="bg-neutral-900 border border-zinc-700 hover:border-zinc-600 transition-colors duration-150 shadow-xl h-full flex flex-col overflow-hidden">
         <div class="p-6 flex-shrink-0">
           <h2 class="font-inter text-2xl font-semibold text-white">Ordering Form</h2>
         </div>
         
-        <!-- ADD CLASS: form-scroll-container for auto-scroll -->
         <div class="flex-1 overflow-y-auto custom-scrollbar px-6 pb-6 form-scroll-container">
           <form [formGroup]="orderForm" (ngSubmit)="onSubmit()" class="space-y-5">
             
@@ -169,7 +172,7 @@
               </div>
             </div>
 
-            <!-- Layer Height & Bottom Texture Row (FDM Only) -->
+            <!-- Layer Height & Bottom Texture Row -->
             <div class="grid grid-cols-2 gap-4">
               <div>
                 <label class="block font-inter text-sm font-medium text-white mb-2">Layer Height (mm)</label>
@@ -264,13 +267,11 @@
                  }">
               <h3 class="font-inter text-sm font-semibold text-white mb-3">Estimated Price and Filament Usage</h3>
               
-              <!-- Calculating State -->
               <div class="flex items-center justify-center py-4" *ngIf="isCalculating">
                 <div class="w-6 h-6 border-2 border-blue-400 border-t-transparent rounded-full animate-spin mr-3"></div>
                 <span class="font-inter text-sm text-blue-400">Calculating...</span>
               </div>
               
-              <!-- Estimation Result -->
               <div *ngIf="estimations && !isCalculating">
                 <div class="flex justify-between items-center mb-2">
                   <span class="font-inter text-sm text-neutral-400">Material Usage:</span>
@@ -281,7 +282,6 @@
                   <span class="font-inter text-xl font-semibold text-green-400">{{ estimations.estimated_cost }} TL</span>
                 </div>
                 
-                <!-- Recalculate Button - LOCKED when form is locked -->
                 <div class="mt-3 pt-3 border-t border-zinc-700" *ngIf="!isFormLocked">
                   <button 
                     type="button"
@@ -292,7 +292,6 @@
                   </button>
                 </div>
 
-                <!-- Locked State -->
                 <div class="mt-3 pt-3 border-t border-zinc-700" *ngIf="isFormLocked">
                   <div class="w-full py-2 bg-neutral-800 border border-zinc-700 text-neutral-500 font-inter text-xs text-center">
                      Calculation Locked
@@ -300,7 +299,6 @@
                 </div>
               </div>
               
-              <!-- No Estimation Yet -->
               <div class="text-center py-4" *ngIf="!estimations && !isCalculating && !uploadedFileId">
                 <p class="font-inter text-sm text-neutral-500">Upload a file to see price estimation</p>
               </div>
@@ -316,27 +314,25 @@
               </div>
             </div>
 
-            <!-- Submit Button -->
+            <!-- ✅ Submit Button - UPDATED -->
             <button 
               type="submit"
-              [disabled]="orderForm.invalid || !uploadedFile || isFormLocked"
+              [disabled]="orderForm.invalid || !uploadedFile || isFormLocked || isLoadingPreview"
               class="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-inter font-semibold text-sm py-3 transition-colors duration-150 disabled:bg-neutral-700 disabled:text-neutral-500 disabled:cursor-not-allowed"
             >
-              {{ isFormLocked ? 'Order Submitted' : 'Submit Order' }}
+              {{ isFormLocked ? 'Order Submitted' : (isLoadingPreview ? 'Loading Preview...' : 'Submit Order') }}
             </button>
 
-            <!-- ✅ SUCCESS MESSAGE CARD -->
+            <!-- Success Message Card -->
             <div *ngIf="orderSubmitted" 
                  class="bg-green-900/20 border-2 border-green-500 p-6 animate-fadeIn">
               
-              <!-- Success Icon -->
               <div class="flex justify-center mb-4">
                 <svg class="w-16 h-16 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                 </svg>
               </div>
 
-              <!-- Success Message -->
               <h3 class="font-inter text-xl font-bold text-green-400 text-center mb-2">
                 Order Confirmed!
               </h3>
@@ -349,7 +345,6 @@
                 <span class="font-semibold text-white">Order ID:</span> {{ submittedOrderId }}
               </p>
 
-              <!-- Action Buttons -->
               <div class="grid grid-cols-2 gap-3">
                 <button 
                   type="button"

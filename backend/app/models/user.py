@@ -1,7 +1,20 @@
 from enum import Enum
 from typing import Optional
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field
 
+class ManufacturerDetails(BaseModel):
+    company: str = Field(..., description="Manufacturer company name")
+    name: str = Field(..., description="Manufacturer contact name")
+    phone: str = Field(..., description="Manufacturer phone number")
+    
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "company": "company1",
+                "name": "John Doe",
+                "phone": "+1 (555) 000-0000"
+            }
+        }
 
 class UserRoles(str, Enum):
     admin = "admin"

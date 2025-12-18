@@ -9,5 +9,6 @@ deleted_users = db["deleted_users"]
 files_db = db["files_db"]
 general_settings = db["general_settings"]
 orders = db["orders"]
+manufacturer_data = db["manufacturer_data"]
 
 fs = gridfs.GridFS(db)

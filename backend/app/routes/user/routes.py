@@ -2,6 +2,7 @@ from bson import ObjectId
 import httpx
 from app import app
 from models.user import (
+    ManufacturerDetails,  # Yeni model eklenecek
     ResetPassword,
     User,
     UserRegister,
@@ -14,7 +15,7 @@ from routes.authentication.auth_modules import (
     verify_password,
 )
 from fastapi import Depends, File, HTTPException, Response, UploadFile
-from crud.databases import fs, users
+from crud.databases import fs, users, manufacturer_data  # manufacturer_data eklendi
 from routes.user.user_functions import (
     change_password,
     register_user,
@@ -113,3 +114,84 @@ def get_profile_picture(id: str):
 
     # Assuming 'fs' is a GridFS instance initialized elsewhere to handle file storage
     return Response(content=fs.get(ObjectId(user["pp"])).read(), media_type="image")
+
+
+# ==================== MANUFACTURER ROUTES ====================
+
+@app.get("/manufacturer_details/", tags=["manufacturer operations"])
+def get_manufacturer_details_route(user: User = Depends(get_session)):
+    """Get manufacturer details for the current user"""
+    print(f"User role: {user.role}, User ID: {user.id}")  # Debug için
+    
+    if user.role != "manufacturer":
+        raise HTTPException(
+            status_code=403, 
+            detail="Access denied. Only manufacturers can access this endpoint."
+        )
+    
+    manufacturer = manufacturer_data.find_one({"user_id": user.id})
+    print(f"Manufacturer data found: {manufacturer}")  # Debug için
+    
+    if not manufacturer:
+        # Return empty data if not found
+        return {
+            "company": "",
+            "name": "",
+            "phone": ""
+        }
+    
+    return {
+        "company": manufacturer.get("company", ""),
+        "name": manufacturer.get("name", ""),
+        "phone": manufacturer.get("phone", "")
+    }
+
+
+@app.post("/manufacturer_details/", tags=["manufacturer operations"])
+def update_manufacturer_details_route(
+    details: ManufacturerDetails, 
+    user: User = Depends(get_session)
+):
+    """Update or create manufacturer details for the current user"""
+    print(f"Updating manufacturer details for user: {user.id}")  # Debug için
+    print(f"Details: {details}")  # Debug için
+    
+    if user.role != "manufacturer":
+        raise HTTPException(
+            status_code=403, 
+            detail="Access denied. Only manufacturers can access this endpoint."
+        )
+    
+    # Check if manufacturer data already exists
+    existing = manufacturer_data.find_one({"user_id": user.id})
+    
+    manufacturer_dict = {
+        "user_id": user.id,
+        "company": details.company,
+        "name": details.name,
+        "phone": details.phone
+    }
+    
+    try:
+        if existing:
+            # Update existing record
+            result = manufacturer_data.update_one(
+                {"user_id": user.id},
+                {"$set": manufacturer_dict}
+            )
+            print(f"Update result: {result.modified_count} documents modified")
+        else:
+            # Create new record
+            result = manufacturer_data.insert_one(manufacturer_dict)
+            print(f"Insert result: {result.inserted_id}")
+        
+        return Message(
+            text="Manufacturer details updated successfully!",
+            status=True
+        )
+    except Exception as e:
+        print(f"Error updating manufacturer details: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to update manufacturer details: {str(e)}"
+        )

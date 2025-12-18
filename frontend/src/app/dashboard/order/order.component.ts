@@ -29,12 +29,13 @@ export class OrderComponent implements OnInit, OnDestroy {
   uploadedFile: File | null = null;
   uploadedFileName: string = '';
   uploadedFileId: string = '';
-  previewImageUrl: string | null = null; // Preview image URL
+  previewImageUrl: string | null = null;
   isUploading: boolean = false;
   isCalculating: boolean = false;
+  isLoadingPreview: boolean = false; // ✅ YENİ EKLENEN
   estimations: OrderEstimations | null = null;
 
-  // New properties for order success state
+  // Order success state
   orderSubmitted: boolean = false;
   submittedOrderId: string = '';
   isFormLocked: boolean = false;
@@ -84,14 +85,12 @@ export class OrderComponent implements OnInit, OnDestroy {
       notes: ['']
     });
 
-    // Handle order type changes separately
     this.orderForm.get('orderType')?.valueChanges.subscribe(type => {
       this.onOrderTypeChange(type);
     });
   }
 
   setupAutoCalculation(): void {
-    // Watch entire form for changes (excluding notes)
     this.formSubscription = this.orderForm.valueChanges.pipe(
       debounceTime(500),
       distinctUntilChanged((prev, curr) => {
@@ -163,6 +162,7 @@ export class OrderComponent implements OnInit, OnDestroy {
     this.uploadedFile = file;
     this.uploadedFileName = file.name;
     this.isUploading = true;
+    this.isLoadingPreview = true; // ✅ PREVIEW LOADING BAŞLAT
     this.estimations = null;
     
     // Clean up previous preview URL
@@ -180,12 +180,16 @@ export class OrderComponent implements OnInit, OnDestroy {
         // Load preview image if available
         if (response.preview_id) {
           this.loadPreviewImage(response.preview_id);
+        } else {
+          // ✅ Preview yoksa loading'i kapat
+          this.isLoadingPreview = false;
         }
         
         this.calculateEstimation();
       },
       error: (error) => {
         this.isUploading = false;
+        this.isLoadingPreview = false; // ✅ HATA DURUMUNDA RESET
         this.uploadedFile = null;
         this.uploadedFileName = '';
         console.error('File upload failed:', error);
@@ -195,14 +199,18 @@ export class OrderComponent implements OnInit, OnDestroy {
   }
 
   loadPreviewImage(previewId: string): void {
+    this.isLoadingPreview = true; // ✅ LOADING BAŞLAT
+    
     this.orderService.getPreviewImageUrl(previewId).subscribe({
       next: (url) => {
         this.previewImageUrl = url;
+        this.isLoadingPreview = false; // ✅ LOADING BİTTİ
         console.log('Preview image loaded:', previewId);
       },
       error: (err) => {
         console.error('Failed to load preview image:', err);
         this.previewImageUrl = null;
+        this.isLoadingPreview = false; // ✅ HATA DURUMUNDA RESET
       }
     });
   }
@@ -305,13 +313,11 @@ export class OrderComponent implements OnInit, OnDestroy {
       next: (response) => {
         console.log('Order created successfully:', response);
         
-        // Lock the form and show success message
         this.isFormLocked = true;
         this.orderSubmitted = true;
         this.submittedOrderId = response.order_id;
         this.orderForm.disable();
 
-        // Scroll to bottom to show success message
         setTimeout(() => {
           this.scrollToBottom();
         }, 100);
@@ -324,7 +330,6 @@ export class OrderComponent implements OnInit, OnDestroy {
     });
   }
 
-  // Scroll to bottom of form container
   scrollToBottom(): void {
     const scrollContainer = document.querySelector('.form-scroll-container');
     if (scrollContainer) {
@@ -335,12 +340,10 @@ export class OrderComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Navigate to orders page
   goToMyOrders(): void {
     window.location.href = "/order/list"
   }
 
-  // Create new order - reload page
   createNewOrder(): void {
     window.location.reload();
   }
@@ -365,9 +368,9 @@ export class OrderComponent implements OnInit, OnDestroy {
     this.orderSubmitted = false;
     this.submittedOrderId = '';
     this.isFormLocked = false;
+    this.isLoadingPreview = false; // ✅ RESET
     this.orderForm.enable();
     
-    // Clean up preview URL
     if (this.previewImageUrl) {
       URL.revokeObjectURL(this.previewImageUrl);
       this.previewImageUrl = null;
@@ -378,7 +381,6 @@ export class OrderComponent implements OnInit, OnDestroy {
     this.subscription?.unsubscribe();
     this.formSubscription?.unsubscribe();
     
-    // Clean up preview URL on component destroy
     if (this.previewImageUrl) {
       URL.revokeObjectURL(this.previewImageUrl);
     }

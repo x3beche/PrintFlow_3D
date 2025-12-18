@@ -100,6 +100,8 @@ class OrderFormMain(BaseModel):
     order_detail: PrintingConfig
     order_timing_table: OrderTimingTable
     preview_id: str
+    manufacturer_id: str = ""
+    is_cancelled: bool = False
 
 # ==================== PRICING CONFIGURATION ====================
 

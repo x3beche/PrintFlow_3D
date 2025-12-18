@@ -17,3 +17,8 @@ trimesh==4.0.5
 matplotlib==3.8.2
 numpy-stl==3.1.1
 Pillow==10.1.0
+open3d
+trimesh 
+scipy 
+numpy 
+matplotlib
