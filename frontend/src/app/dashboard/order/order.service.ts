@@ -8,6 +8,7 @@ import { OrderData, OrderEstimations } from './models';
 export interface FileUploadResponse {
   success: boolean;
   file_id: string;
+  preview_id: string | null;  // Preview image ID eklendi
   filename: string;
   message: string;
   file_info?: {
@@ -57,6 +58,37 @@ export class OrderService {
     return this.http.post<FileUploadResponse>(`${this.apiUrl}/order/upload-file`, formData).pipe(
       tap(response => console.log('File Upload Response:', response))
     );
+  }
+
+  /**
+   * Get preview image as Blob for display
+   * @param previewId Preview image ID from upload response
+   * @returns Observable<Blob> - PNG image blob
+   */
+  getPreviewImage(previewId: string): Observable<Blob> {
+    return this.http.get(`${this.apiUrl}/order/preview/${previewId}`, {
+      responseType: 'blob'
+    }).pipe(
+      tap(() => console.log('Preview Image Retrieved:', previewId))
+    );
+  }
+
+  /**
+   * Get preview image as Object URL for immediate display
+   * @param previewId Preview image ID
+   * @returns Observable<string> - Object URL for img src
+   */
+  getPreviewImageUrl(previewId: string): Observable<string> {
+    return new Observable(observer => {
+      this.getPreviewImage(previewId).subscribe({
+        next: (blob) => {
+          const objectUrl = URL.createObjectURL(blob);
+          observer.next(objectUrl);
+          observer.complete();
+        },
+        error: (err) => observer.error(err)
+      });
+    });
   }
 
   calculateEstimation(request: EstimationRequest): Observable<EstimationResponse> {

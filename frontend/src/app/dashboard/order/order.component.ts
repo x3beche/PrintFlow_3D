@@ -29,6 +29,7 @@ export class OrderComponent implements OnInit, OnDestroy {
   uploadedFile: File | null = null;
   uploadedFileName: string = '';
   uploadedFileId: string = '';
+  previewImageUrl: string | null = null; // Preview image URL
   isUploading: boolean = false;
   isCalculating: boolean = false;
   estimations: OrderEstimations | null = null;
@@ -163,12 +164,23 @@ export class OrderComponent implements OnInit, OnDestroy {
     this.uploadedFileName = file.name;
     this.isUploading = true;
     this.estimations = null;
+    
+    // Clean up previous preview URL
+    if (this.previewImageUrl) {
+      URL.revokeObjectURL(this.previewImageUrl);
+      this.previewImageUrl = null;
+    }
 
     this.orderService.uploadFile(file).subscribe({
       next: (response: FileUploadResponse) => {
         this.isUploading = false;
         this.uploadedFileId = response.file_id;
         console.log('File uploaded successfully:', response);
+        
+        // Load preview image if available
+        if (response.preview_id) {
+          this.loadPreviewImage(response.preview_id);
+        }
         
         this.calculateEstimation();
       },
@@ -178,6 +190,19 @@ export class OrderComponent implements OnInit, OnDestroy {
         this.uploadedFileName = '';
         console.error('File upload failed:', error);
         alert('File upload failed. Please try again.');
+      }
+    });
+  }
+
+  loadPreviewImage(previewId: string): void {
+    this.orderService.getPreviewImageUrl(previewId).subscribe({
+      next: (url) => {
+        this.previewImageUrl = url;
+        console.log('Preview image loaded:', previewId);
+      },
+      error: (err) => {
+        console.error('Failed to load preview image:', err);
+        this.previewImageUrl = null;
       }
     });
   }
@@ -341,10 +366,21 @@ export class OrderComponent implements OnInit, OnDestroy {
     this.submittedOrderId = '';
     this.isFormLocked = false;
     this.orderForm.enable();
+    
+    // Clean up preview URL
+    if (this.previewImageUrl) {
+      URL.revokeObjectURL(this.previewImageUrl);
+      this.previewImageUrl = null;
+    }
   }
 
   ngOnDestroy(): void {
     this.subscription?.unsubscribe();
     this.formSubscription?.unsubscribe();
+    
+    // Clean up preview URL on component destroy
+    if (this.previewImageUrl) {
+      URL.revokeObjectURL(this.previewImageUrl);
+    }
   }
 }
