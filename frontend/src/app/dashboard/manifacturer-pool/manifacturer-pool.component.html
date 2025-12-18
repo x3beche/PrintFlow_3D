@@ -1,11 +1,81 @@
 <app-sidebar></app-sidebar>
-<div
-  class="flex flex-col h-screen bg-neutral-900"
-  [ngClass]="{ 'sm:ml-48': !sidebarCollapsed, 'sm:ml-12': sidebarCollapsed }"
->
+<div class="flex flex-col h-screen bg-neutral-900"
+  [ngClass]="{ 'sm:ml-48': !sidebarCollapsed, 'sm:ml-12': sidebarCollapsed }">
   <app-header header_title="Order Page"></app-header>
-  <!-- Ana container -->
-  <div class="flex-1 p-2 grid grid-cols-2 gap-2 bg-black overflow-hidden">
-   <p class="font-inter text-white">here is for manufacturer order list</p>
+  
+  <div class="flex flex-col p-6 bg-black h-full w-full overflow-y-auto font-inter gap-8">
+
+    <div class="grid grid-cols-1 xl:grid-cols-12 gap-8">
+
+      <div class="xl:col-span-7 flex flex-col">
+        <h2 class="text-lg font-bold text-white mb-4">Welcome Back</h2>
+
+        <div class="flex flex-col gap-3">
+          <div *ngFor="let task of continuingTasks">
+            <app-adopted-task 
+              [imageSource]="task.image"
+              [createdDate]="task.date"
+              [name]="task.name">
+            </app-adopted-task>
+          </div>
+        </div>
+
+        <div class="mt-4 flex items-center justify-between bg-black pt-2">
+          <span class="text-xs text-zinc-400 font-medium">Showing 4 results of 6 total entries.</span>
+          <div class="flex bg-zinc-800 rounded border border-zinc-700 overflow-hidden">
+            <button class="px-3 py-1.5 text-xs text-zinc-300 hover:bg-zinc-700 border-r border-zinc-700 transition-colors">Previous</button>
+            <button class="px-3 py-1.5 text-xs text-black bg-zinc-400 font-bold">1</button>
+            <button class="px-3 py-1.5 text-xs text-zinc-300 hover:bg-zinc-700 border-l border-zinc-700 transition-colors">2</button>
+            <button class="px-3 py-1.5 text-xs text-zinc-300 hover:bg-zinc-700 border-l border-zinc-700 transition-colors">3</button>
+            <button class="px-3 py-1.5 text-xs text-zinc-300 hover:bg-zinc-700 border-l border-zinc-700 transition-colors">Next</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="xl:col-span-5 flex flex-col">
+        <h2 class="text-lg font-bold text-white mb-4">Summary</h2>
+        
+        <div class="bg-zinc-800/50 p-6 rounded border border-zinc-700/50 h-full flex items-center">
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 w-full">
+            
+            <div *ngFor="let stat of summaryStats" class="bg-zinc-700/30 p-2 py-4 rounded-lg flex flex-col items-center justify-center border border-white/5">
+              <app-graph 
+                [value]="stat.value" 
+                [label]="stat.label"
+                [reverseColor]="true"> </app-graph>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="flex flex-col">
+      <h2 class="text-lg font-bold text-white mb-4">Available Tasks</h2>
+
+      <div class="flex flex-col gap-4">
+        <div *ngFor="let task of availableTasks">
+          <app-non-adopted-task
+            [imageSource]="task.image"
+            [orderId]="task.orderId"
+            [name]="task.name"
+            [createdDate]="task.date">
+          </app-non-adopted-task>
+        </div>
+      </div>
+
+      <div class="mt-6 flex items-center justify-between bg-black pb-4">
+        <span class="text-xs text-zinc-400 font-medium">Showing 3 results of 13 total entries.</span>
+        <div class="flex bg-zinc-800 rounded border border-zinc-700 overflow-hidden">
+          <button class="px-4 py-2 text-xs text-zinc-300 hover:bg-zinc-700 border-r border-zinc-700 transition-colors">Previous</button>
+          <button class="px-4 py-2 text-xs text-black bg-zinc-400 font-bold">1</button>
+          <button class="px-4 py-2 text-xs text-zinc-300 hover:bg-zinc-700 border-l border-zinc-700 transition-colors">2</button>
+          <button class="px-4 py-2 text-xs text-zinc-300 hover:bg-zinc-700 border-l border-zinc-700 transition-colors">3</button>
+          <button class="px-4 py-2 text-xs text-zinc-300 hover:bg-zinc-700 border-l border-zinc-700 transition-colors">Next</button>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>

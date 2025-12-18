@@ -22,6 +22,9 @@ import { OrderListComponent } from "./dashboard/order-list/order-list.component"
 import { OrderTrackingComponent } from "./dashboard/order-tracking/order-tracking.component";
 import { ManifacturerPoolComponent } from "./dashboard/manifacturer-pool/manifacturer-pool.component";
 import { ManifacturerProcessComponent } from "./dashboard/manifacturer-process/manifacturer-process.component";
+import { GraphComponent } from "./dashboard/manifacturer-pool/graph/graph.component";
+import { AdoptedTaskComponent } from "./dashboard/manifacturer-pool/adopted-task/adopted-task.component";
+import { NonAdoptedTaskComponent } from "./dashboard/manifacturer-pool/non-adopted-task/non-adopted-task.component";
 
 @NgModule({
   declarations: [
@@ -50,7 +53,10 @@ import { ManifacturerProcessComponent } from "./dashboard/manifacturer-process/m
     AppRoutingModule,
     FormsModule,
     ReactiveFormsModule,
-  ],
+    GraphComponent,
+    AdoptedTaskComponent,
+    NonAdoptedTaskComponent
+],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   providers: [
     {
