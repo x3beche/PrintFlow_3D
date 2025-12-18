@@ -1,39 +1,70 @@
 <app-sidebar></app-sidebar>
 
-<div
-  class="flex flex-col h-screen bg-black"
-  [ngClass]="{ 'sm:ml-48': !sidebarCollapsed, 'sm:ml-12': sidebarCollapsed }"
->
+<div class="flex flex-col h-screen bg-black"
+  [ngClass]="{ 'sm:ml-48': !sidebarCollapsed, 'sm:ml-12': sidebarCollapsed }">
   <app-header header_title="Order Page"></app-header>
-  
+
   <!-- Main Container - Centered Content -->
   <div class="flex-1 flex items-center justify-center p-4 overflow-hidden">
-    
+
     <!-- Centered Container with max-width -->
     <div class="w-full max-w-[73%] h-full flex flex-col">
-      
+
       <!-- Dark Background Card -->
       <div class="bg-neutral-900 border border-zinc-700 shadow-xl h-full flex flex-col overflow-hidden">
-        
+
         <!-- Header with "Orders" Title -->
         <div class="p-6 flex-shrink-0 border-b border-zinc-700">
           <h2 class="font-inter text-2xl font-semibold text-white">Orders</h2>
         </div>
 
+        <!-- Loading State -->
+        <div *ngIf="isLoading" class="flex-1 flex items-center justify-center">
+          <div class="text-center">
+            <div class="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-yellow-400"></div>
+            <p class="text-neutral-400 mt-4 font-inter">Loading orders...</p>
+          </div>
+        </div>
+
+        <!-- Error State -->
+        <div *ngIf="!isLoading && errorMessage" class="flex-1 flex items-center justify-center">
+          <div class="text-center">
+            <p class="text-red-500 font-inter text-lg">{{ errorMessage }}</p>
+            <button (click)="loadOrders()"
+              class="mt-4 px-6 py-2 bg-yellow-400 hover:bg-yellow-500 text-black font-inter font-semibold transition-colors duration-150">
+              Retry
+            </button>
+          </div>
+        </div>
+
+        <!-- Empty State -->
+        <div *ngIf="!isLoading && !errorMessage && allOrders.length === 0"
+          class="flex-1 flex items-center justify-center">
+          <div class="text-center">
+            <svg class="w-24 h-24 text-neutral-600 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4">
+              </path>
+            </svg>
+            <p class="text-neutral-400 font-inter text-lg">No orders found</p>
+            <p class="text-neutral-500 font-inter text-sm mt-2">Your orders will appear here once you place them</p>
+          </div>
+        </div>
+
         <!-- Orders Container - Light cards inside dark card -->
-        <div class="flex-1 flex flex-col p-4 gap-3 overflow-y-auto">
-          
+        <div *ngIf="!isLoading && !errorMessage && allOrders.length > 0"
+          class="flex-1 flex flex-col p-4 gap-3 overflow-y-auto">
+
           <!-- Order Card (Light Gray) -->
-          <div 
-            *ngFor="let order of displayedOrders" 
-            class="bg-neutral-800 border border-zinc-700 hover:border-zinc-600 transition-all duration-150 shadow-md flex-shrink-0"
-          >
+          <div *ngFor="let order of displayedOrders"
+            class="bg-neutral-800 border border-zinc-700 hover:border-zinc-600 transition-all duration-150 shadow-md flex-shrink-0">
             <div class="grid grid-cols-[140px_1fr_1fr_1fr_auto] gap-6 p-4 items-center">
-              
+
               <!-- Gray Card Placeholder -->
               <div class="bg-neutral-700 border border-zinc-600 flex items-center justify-center h-20 w-full">
                 <svg class="w-12 h-12 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
                 </svg>
               </div>
 
@@ -46,10 +77,8 @@
               <!-- Status Label - Gray or Green -->
               <div>
                 <p class="font-inter text-xs text-neutral-500 mb-1">Status</p>
-                <span 
-                  class="inline-block px-4 py-1.5 text-white font-inter text-sm font-semibold"
-                  [ngClass]="order.currentStep === 5 ? 'bg-green-600' : 'bg-neutral-600'"
-                >
+                <span class="inline-block px-4 py-1.5 text-white font-inter text-sm font-semibold"
+                  [ngClass]="order.currentStep === 5 ? 'bg-green-600' : 'bg-neutral-600'">
                   {{ getStatusText(order.currentStep) }}
                 </span>
               </div>
@@ -62,16 +91,12 @@
 
               <!-- Operations - Buttons Stacked Vertically -->
               <div class="flex flex-col gap-2">
-                <button 
-                  (click)="trackOrder(order)"
-                  class="px-6 py-2 bg-yellow-400 hover:bg-yellow-500 text-black font-inter font-semibold text-xs transition-colors duration-150 whitespace-nowrap"
-                >
+                <button (click)="trackOrder(order)"
+                  class="px-6 py-2 bg-yellow-400 hover:bg-yellow-500 text-black font-inter font-semibold text-xs transition-colors duration-150 whitespace-nowrap">
                   Track Order
                 </button>
-                <button 
-                  (click)="cancelOrder(order)"
-                  class="px-6 py-2 bg-red-600 hover:bg-red-700 text-white font-inter font-semibold text-xs transition-colors duration-150 whitespace-nowrap"
-                >
+                <button (click)="cancelOrder(order)"
+                  class="px-6 py-2 bg-red-600 hover:bg-red-700 text-white font-inter font-semibold text-xs transition-colors duration-150 whitespace-nowrap">
                   Cancel Order
                 </button>
               </div>
@@ -82,48 +107,38 @@
         </div>
 
         <!-- Pagination Footer -->
-        <div class="flex items-center justify-between border-t border-zinc-700 p-4 flex-shrink-0">
-          
+        <div *ngIf="!isLoading && !errorMessage && allOrders.length > 0"
+          class="flex items-center justify-between border-t border-zinc-700 p-4 flex-shrink-0">
+
           <!-- Info Text -->
           <div>
             <p class="font-inter text-xs text-neutral-400">
-              Showing <span class="text-white font-semibold">{{ getStartIndex() }}</span> 
-              to <span class="text-white font-semibold">{{ getEndIndex() }}</span> 
+              Showing <span class="text-white font-semibold">{{ getStartIndex() }}</span>
+              to <span class="text-white font-semibold">{{ getEndIndex() }}</span>
               of <span class="text-white font-semibold">{{ totalItems }}</span> total entries.
             </p>
           </div>
 
           <!-- Pagination Buttons -->
           <div class="flex items-center gap-2">
-            
+
             <!-- Previous Button -->
-            <button 
-              (click)="previousPage()"
-              [disabled]="currentPage === 1"
-              class="px-4 py-2 bg-neutral-800 border border-zinc-700 text-white font-inter text-xs hover:bg-neutral-700 hover:border-zinc-600 transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
+            <button (click)="previousPage()" [disabled]="currentPage === 1"
+              class="px-4 py-2 bg-neutral-800 border border-zinc-700 text-white font-inter text-xs hover:bg-neutral-700 hover:border-zinc-600 transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed">
               Previous
             </button>
 
             <!-- Page Numbers -->
-            <button 
-              *ngFor="let page of getPageNumbers()"
-              (click)="goToPage(page)"
-              [ngClass]="{
+            <button *ngFor="let page of getPageNumbers()" (click)="goToPage(page)" [ngClass]="{
                 'bg-yellow-400 text-black font-bold border-yellow-400': page === currentPage,
                 'bg-neutral-800 text-white hover:bg-neutral-700 hover:border-zinc-600': page !== currentPage
-              }"
-              class="px-4 py-2 border border-zinc-700 font-inter text-xs transition-colors duration-150"
-            >
+              }" class="px-4 py-2 border border-zinc-700 font-inter text-xs transition-colors duration-150">
               {{ page }}
             </button>
 
             <!-- Next Button -->
-            <button 
-              (click)="nextPage()"
-              [disabled]="currentPage === totalPages"
-              class="px-4 py-2 bg-neutral-800 border border-zinc-700 text-white font-inter text-xs hover:bg-neutral-700 hover:border-zinc-600 transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
+            <button (click)="nextPage()" [disabled]="currentPage === totalPages"
+              class="px-4 py-2 bg-neutral-800 border border-zinc-700 text-white font-inter text-xs hover:bg-neutral-700 hover:border-zinc-600 transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed">
               Next
             </button>
 
@@ -134,6 +149,6 @@
       </div>
 
     </div>
-    
+
   </div>
 </div>

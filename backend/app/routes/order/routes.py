@@ -289,33 +289,6 @@ async def get_file_info(
         print(f"File info error: {e}")
         raise HTTPException(status_code=404, detail="File not found")
 
-@app.get("/order/list")
-async def list_orders(
-    user: User = Depends(get_session)
-):
-    """List all orders for current user"""
-    try:
-        user_orders = list(orders.find({"user_id": str(user.id)}))
-        
-        for order in user_orders:
-            order['_id'] = str(order['_id'])
-            
-            # Get latest status from timing table
-            if 'order_timing_table' in order and 'entries' in order['order_timing_table']:
-                entries = order['order_timing_table']['entries']
-                if entries:
-                    latest_entry = max(entries, key=lambda x: x['timestamp'])
-                    order['current_status'] = latest_entry['status']
-                    order['last_updated'] = latest_entry['timestamp']
-        
-        return {
-            "success": True,
-            "orders": user_orders,
-            "count": len(user_orders)
-        }
-    except Exception as e:
-        print(f"List orders error: {e}")
-        raise HTTPException(status_code=500, detail="Failed to retrieve orders")
 
 @app.get("/order/{order_id}/timeline")
 async def get_order_timeline(
