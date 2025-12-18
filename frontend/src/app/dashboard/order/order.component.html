@@ -56,28 +56,52 @@
             <p class="font-inter text-sm text-neutral-500">Drag & drop or click to browse (.stl, .obj, .3mf)</p>
           </div>
 
-          <!-- File Uploaded State -->
-          <div class="text-center" *ngIf="uploadedFile && !isUploading && uploadedFileId">
-            <svg class="w-20 h-20 mx-auto text-green-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-            </svg>
-            <p class="font-inter text-white font-medium mb-2">{{ uploadedFileName }}</p>
-            <p class="font-inter text-sm text-green-400 mb-1">File uploaded successfully</p>
-            <p class="font-inter text-xs text-neutral-500 mb-4">File ID: {{ uploadedFileId }}</p>
+          <!-- File Uploaded State with Preview -->
+          <div class="w-full h-full flex flex-col" *ngIf="uploadedFile && !isUploading && uploadedFileId">
             
-            <!-- Change File Button - LOCKED when form is locked -->
-            <button 
-              *ngIf="!isFormLocked"
-              type="button"
-              class="mt-2 px-4 py-2 bg-neutral-700 border border-zinc-600 text-white font-inter text-sm hover:bg-neutral-600 transition-colors duration-150"
-              (click)="fileInput.click(); $event.stopPropagation()"
+            <!-- Preview Image (if available) -->
+            <div 
+              *ngIf="previewImageUrl" 
+              class="flex-1 bg-neutral-800/50 flex items-center justify-center overflow-hidden mb-4"
             >
-              Change File
-            </button>
+              <img 
+                [src]="previewImageUrl" 
+                alt="3D Model Preview" 
+                class="max-w-full max-h-full object-contain"
+              />
+            </div>
 
-            <!-- Locked Message -->
-            <div *ngIf="isFormLocked" class="mt-2 px-4 py-2 bg-neutral-800 border border-zinc-700 text-neutral-500 font-inter text-sm">
-               File Locked
+            <!-- No Preview Fallback -->
+            <div *ngIf="!previewImageUrl" class="flex-1 flex items-center justify-center">
+              <div class="text-center">
+                <svg class="w-20 h-20 mx-auto text-green-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <p class="font-inter text-white font-medium mb-2">{{ uploadedFileName }}</p>
+                <p class="font-inter text-sm text-green-400">File uploaded successfully</p>
+                <p class="font-inter text-xs text-neutral-500 mt-2">Preview not available</p>
+              </div>
+            </div>
+
+            <!-- File Info & Actions -->
+            <div class="bg-neutral-800/50 p-4 border-t border-zinc-700">
+              <p class="font-inter text-white font-medium mb-1 truncate">{{ uploadedFileName }}</p>
+              <p class="font-inter text-xs text-neutral-500 mb-3">File ID: {{ uploadedFileId }}</p>
+              
+              <!-- Change File Button -->
+              <button 
+                *ngIf="!isFormLocked"
+                type="button"
+                class="w-full px-4 py-2 bg-neutral-700 border border-zinc-600 text-white font-inter text-sm hover:bg-neutral-600 transition-colors duration-150"
+                (click)="fileInput.click(); $event.stopPropagation()"
+              >
+                Change File
+              </button>
+
+              <!-- Locked Message -->
+              <div *ngIf="isFormLocked" class="w-full px-4 py-2 bg-neutral-800 border border-zinc-700 text-neutral-500 font-inter text-sm text-center">
+                🔒 File Locked
+              </div>
             </div>
           </div>
         </div>
