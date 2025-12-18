@@ -116,6 +116,7 @@ async def calculate_estimation_route(
         traceback.print_exc()
         raise HTTPException(status_code=500, detail=f"Estimation failed: {str(e)}")
 
+
 @app.post("/order/new")
 async def new_order_route(
     order_data: OrderData,
@@ -124,28 +125,88 @@ async def new_order_route(
     """Create new order with uploaded file"""
     
     try:
-        file_obj_id = ObjectId(order_data.file_id)
-        file_exists = fs.exists({"_id": file_obj_id})
-        if not file_exists:
+        # Verify file exists
+        try:
+            file_obj_id = ObjectId(order_data.file_id)
+            file_data = fs.get(file_obj_id)
+        except Exception as file_error:
+            print(f"File retrieval error: {file_error}")
             raise HTTPException(status_code=404, detail="File not found in database")
         
-        order_form = OrderForm(
+        # Get volume from file metadata
+        if not hasattr(file_data, 'metadata') or not file_data.metadata:
+            raise HTTPException(status_code=400, detail="File metadata not found")
+        
+        volume_cm3 = file_data.metadata.get('volume_cm3', 0)
+        
+        if volume_cm3 == 0:
+            raise HTTPException(status_code=400, detail="File volume data not found. Please upload a valid STL file.")
+        
+        # Calculate estimations from order_detail
+        pricing_result = PricingConfig.calculate_price(
+            volume_cm3=volume_cm3,
+            material=order_data.order_detail.material.value if isinstance(order_data.order_detail.material, Enum) else order_data.order_detail.material,
+            brand=order_data.order_detail.brand.value if isinstance(order_data.order_detail.brand, Enum) else order_data.order_detail.brand,
+            order_type=order_data.order_type.value if isinstance(order_data.order_type, Enum) else order_data.order_type,
+            infill=order_data.order_detail.infill,
+            layer_height=order_data.order_detail.layer_height,
+            quantity=1
+        )
+        
+        estimations = OrderEstimations(
+            estimated_weight=pricing_result['estimated_weight'],
+            estimated_cost=pricing_result['estimated_cost']
+        )
+        
+        # Generate unique order ID
+        order_id = str(uuid.uuid4())
+        
+        # Create initial timing entry for ORDER_RECEIVED status
+        initial_timing_entry = OrderTimingEntry(
             user_id=str(user.id),
-            data=order_data,
-            order_id=str(uuid.uuid4())
+            timestamp=datetime.utcnow(),
+            status=OrderStatus.ORDER_RECEIVED
+        )
+        
+        # Create timing table with initial entry
+        timing_table = OrderTimingTable(
+            order_received=initial_timing_entry
+        )
+        
+        # Create OrderFormMain
+        order_form_main = OrderFormMain(
+            order_id=order_id,
+            user_id=str(user.id),
+            estimations=estimations,
+            file_id=order_data.file_id,
+            notes=order_data.notes,
+            order_type=order_data.order_type,
+            order_detail=order_data.order_detail,
+            order_timing_table=timing_table,
+            preview_id="str"
         )
 
-        result = orders.insert_one(order_form.model_dump())
+        # Convert to dict and handle enum serialization
+        order_dict = order_form_main.model_dump(mode='json')
         
-        print(f"Order created successfully: {order_form.order_id}")
+        # Insert into database
+        result = orders.insert_one(order_dict)
+        
+        print(f"Order created successfully: {order_form_main.order_id}")
             
         return {
             "success": True,
             "message": "Order received successfully",
-            "order_id": order_form.order_id,
-            "order_data": order_data.model_dump(),
+            "order_id": order_form_main.order_id,
             "user_id": str(user.id),
-            "db_id": str(result.inserted_id)
+            "db_id": str(result.inserted_id),
+            "status": OrderStatus.ORDER_RECEIVED.value,
+            "timestamp": initial_timing_entry.timestamp.isoformat(),
+            "estimations": {
+                "estimated_weight": estimations.estimated_weight,
+                "estimated_cost": estimations.estimated_cost
+            },
+            "order_data": order_data.model_dump(mode='json')
         }
         
     except HTTPException:
@@ -155,6 +216,55 @@ async def new_order_route(
         import traceback
         traceback.print_exc()
         raise HTTPException(status_code=500, detail=f"Order creation failed: {str(e)}")
+       
+@app.patch("/order/{order_id}/status")
+async def update_order_status(
+    order_id: str,
+    status: OrderStatus,
+    user: User = Depends(get_session)
+):
+    """Update order status and add timing entry"""
+    try:
+        # Find the order
+        order = orders.find_one({"order_id": order_id})
+        
+        if not order:
+            raise HTTPException(status_code=404, detail="Order not found")
+        
+        # Create new timing entry
+        new_timing_entry = OrderTimingEntry(
+            user_id=str(user.id),
+            timestamp=datetime.utcnow(),
+            status=status
+        )
+        
+        # Update order with new timing entry
+        result = orders.update_one(
+            {"order_id": order_id},
+            {
+                "$push": {"order_timing_table.entries": new_timing_entry.model_dump()},
+                "$set": {"updated_at": datetime.utcnow()}
+            }
+        )
+        
+        if result.modified_count == 0:
+            raise HTTPException(status_code=500, detail="Failed to update order status")
+        
+        return {
+            "success": True,
+            "message": f"Order status updated to: {status.get_status_text()}",
+            "order_id": order_id,
+            "new_status": status.get_status_text(),
+            "timestamp": new_timing_entry.timestamp.isoformat()
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Status update error: {e}")
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=f"Status update failed: {str(e)}")
 
 @app.get("/order/file/{file_id}")
 async def get_file_info(
@@ -189,6 +299,14 @@ async def list_orders(
         
         for order in user_orders:
             order['_id'] = str(order['_id'])
+            
+            # Get latest status from timing table
+            if 'order_timing_table' in order and 'entries' in order['order_timing_table']:
+                entries = order['order_timing_table']['entries']
+                if entries:
+                    latest_entry = max(entries, key=lambda x: x['timestamp'])
+                    order['current_status'] = latest_entry['status']
+                    order['last_updated'] = latest_entry['timestamp']
         
         return {
             "success": True,
@@ -198,3 +316,44 @@ async def list_orders(
     except Exception as e:
         print(f"List orders error: {e}")
         raise HTTPException(status_code=500, detail="Failed to retrieve orders")
+
+@app.get("/order/{order_id}/timeline")
+async def get_order_timeline(
+    order_id: str,
+    user: User = Depends(get_session)
+):
+    """Get complete timeline/history of an order"""
+    try:
+        order = orders.find_one({"order_id": order_id})
+        
+        if not order:
+            raise HTTPException(status_code=404, detail="Order not found")
+        
+        # Verify user has access to this order
+        if order.get('user_id') != str(user.id):
+            raise HTTPException(status_code=403, detail="Access denied")
+        
+        timeline = []
+        if 'order_timing_table' in order and 'entries' in order['order_timing_table']:
+            for entry in order['order_timing_table']['entries']:
+                timeline.append({
+                    "status": entry['status'],
+                    "status_text": OrderStatus(entry['status']).get_status_text(),
+                    "timestamp": entry['timestamp'],
+                    "user_id": entry['user_id']
+                })
+        
+        # Sort by timestamp
+        timeline.sort(key=lambda x: x['timestamp'])
+        
+        return {
+            "success": True,
+            "order_id": order_id,
+            "timeline": timeline
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Timeline retrieval error: {e}")
+        raise HTTPException(status_code=500, detail="Failed to retrieve order timeline")

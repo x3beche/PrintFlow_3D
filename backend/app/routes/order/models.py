@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 from enum import Enum
 from typing import Union, Dict
+from datetime import datetime
 
 class FDMMaterial(str, Enum):
     PLA = "PLA"
@@ -70,6 +71,25 @@ class OrderForm(BaseModel):
     data: OrderData
 
 
+class OrderStatus(Enum):
+    ORDER_RECEIVED = "Order Received"
+    ASSIGNED_TO_MANUFACTURER = "Assigned to Manufacturer"
+    STARTED_MANUFACTURING = "Started Manufacturing"
+    PRODUCED = "Produced"
+    READY_TO_TAKE = "Ready to Take"
+
+class OrderTimingEntry(BaseModel):
+    user_id: str
+    timestamp: datetime
+    status: OrderStatus
+
+class OrderTimingTable(BaseModel):
+    order_received: OrderTimingEntry | None = None
+    assigned_to_manufacturer: OrderTimingEntry | None = None
+    started_manufacturing: OrderTimingEntry | None = None
+    produced: OrderTimingEntry | None = None
+    ready_to_take: OrderTimingEntry | None = None
+
 class OrderFormMain(BaseModel):
     order_id: str
     user_id: str
@@ -78,7 +98,8 @@ class OrderFormMain(BaseModel):
     notes: str
     order_type: OrderType
     order_detail: PrintingConfig
-
+    order_timing_table: OrderTimingTable
+    preview_id: str
 
 # ==================== PRICING CONFIGURATION ====================
 
