@@ -1,81 +1,149 @@
 <app-sidebar></app-sidebar>
-<div class="flex flex-col h-screen bg-neutral-900"
+<div class="flex flex-col h-screen bg-black font-inter"
   [ngClass]="{ 'sm:ml-48': !sidebarCollapsed, 'sm:ml-12': sidebarCollapsed }">
-  <app-header header_title="Order Page"></app-header>
+  <app-header header_title="Dashboard"></app-header>
   
-  <div class="flex flex-col p-6 bg-black h-full w-full overflow-y-auto font-inter gap-8">
+  <!-- ✅ Ana container - responsive padding ve max-width -->
+  <div class="flex-1 p-2 sm:p-3 lg:p-4 bg-black overflow-hidden flex items-center justify-center">
+    
+    <!-- ✅ Responsive container -->
+    <div class="w-full max-w-full lg:max-w-[90%] xl:max-w-[85%] 2xl:max-w-[73%] h-full flex flex-col gap-2 sm:gap-3">
 
-    <div class="grid grid-cols-1 xl:grid-cols-12 gap-8">
+      <!-- ✅ Üst kısım - Responsive grid -->
+      <div class="grid grid-cols-1 xl:grid-cols-12 gap-2 sm:gap-3 flex-1 min-h-0">
 
-      <div class="xl:col-span-7 flex flex-col">
-        <h2 class="text-lg font-bold text-white mb-4">Welcome Back</h2>
-
-        <div class="flex flex-col gap-3">
-          <div *ngFor="let task of continuingTasks">
-            <app-adopted-task 
-              [imageSource]="task.image"
-              [createdDate]="task.date"
-              [name]="task.name">
-            </app-adopted-task>
+        <!-- ✅ Sol taraf - Continuing Tasks -->
+        <div class="xl:col-span-7 bg-neutral-900 border border-zinc-700 hover:border-zinc-600 transition-colors duration-150 shadow-xl flex flex-col overflow-hidden">
+          
+          <!-- Header -->
+          <div class="p-3 sm:p-4 flex-shrink-0 border-b border-zinc-700">
+            <h2 class="text-base sm:text-lg font-semibold text-white font-inter">Welcome Back</h2>
           </div>
-        </div>
 
-        <div class="mt-4 flex items-center justify-between bg-black pt-2">
-          <span class="text-xs text-zinc-400 font-medium">Showing 4 results of 6 total entries.</span>
-          <div class="flex bg-zinc-800 rounded border border-zinc-700 overflow-hidden">
-            <button class="px-3 py-1.5 text-xs text-zinc-300 hover:bg-zinc-700 border-r border-zinc-700 transition-colors">Previous</button>
-            <button class="px-3 py-1.5 text-xs text-black bg-zinc-400 font-bold">1</button>
-            <button class="px-3 py-1.5 text-xs text-zinc-300 hover:bg-zinc-700 border-l border-zinc-700 transition-colors">2</button>
-            <button class="px-3 py-1.5 text-xs text-zinc-300 hover:bg-zinc-700 border-l border-zinc-700 transition-colors">3</button>
-            <button class="px-3 py-1.5 text-xs text-zinc-300 hover:bg-zinc-700 border-l border-zinc-700 transition-colors">Next</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="xl:col-span-5 flex flex-col">
-        <h2 class="text-lg font-bold text-white mb-4">Summary</h2>
-        
-        <div class="bg-zinc-800/50 p-6 rounded border border-zinc-700/50 h-full flex items-center">
-          <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 w-full">
-            
-            <div *ngFor="let stat of summaryStats" class="bg-zinc-700/30 p-2 py-4 rounded-lg flex flex-col items-center justify-center border border-white/5">
-              <app-graph 
-                [value]="stat.value" 
-                [label]="stat.label"
-                [reverseColor]="true"> </app-graph>
+          <!-- Scroll container -->
+          <div class="flex-1 flex flex-col gap-1.5 sm:gap-2 overflow-y-auto custom-scrollbar p-2 sm:p-3 min-h-0">
+            <div *ngFor="let task of continuingTasks" class="flex-1 min-h-[60px] sm:min-h-[70px]">
+              <app-adopted-task 
+                [imageSource]="task.image"
+                [createdDate]="task.date"
+                [name]="task.name"
+                class="h-full block">
+              </app-adopted-task>
             </div>
+          </div>
 
+          <!-- Pagination -->
+          <div class="p-2 sm:p-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 flex-shrink-0 border-t border-zinc-700">
+            <span class="text-[10px] sm:text-xs text-neutral-400 font-medium font-inter">
+              Showing {{ getContinuingTasksStartIndex() }}-{{ getContinuingTasksEndIndex() }} of {{ allContinuingTasks.length }} entries
+            </span>
+            <div class="flex bg-neutral-800 border border-zinc-700 overflow-hidden">
+              <button 
+                (click)="previousContinuingTasksPage()"
+                [disabled]="continuingTasksPage === 1"
+                class="px-2 sm:px-3 py-1 sm:py-1.5 text-[10px] sm:text-xs text-white hover:bg-neutral-700 border-r border-zinc-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-inter">
+                Previous
+              </button>
+              <button 
+                *ngFor="let page of getContinuingTasksPageNumbers()"
+                (click)="goToContinuingTasksPage(page)"
+                [ngClass]="{
+                  'bg-yellow-400 text-black font-bold': page === continuingTasksPage,
+                  'text-white hover:bg-neutral-700': page !== continuingTasksPage
+                }"
+                class="px-2 sm:px-3 py-1 sm:py-1.5 text-[10px] sm:text-xs border-l border-zinc-700 transition-colors font-inter">
+                {{ page }}
+              </button>
+              <button 
+                (click)="nextContinuingTasksPage()"
+                [disabled]="continuingTasksPage === continuingTasksTotalPages"
+                class="px-2 sm:px-3 py-1 sm:py-1.5 text-[10px] sm:text-xs text-white hover:bg-neutral-700 border-l border-zinc-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-inter">
+                Next
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ✅ Sağ taraf - Summary (4 Graph) -->
+        <div class="xl:col-span-5 bg-neutral-900 border border-zinc-700 hover:border-zinc-600 transition-colors duration-150 shadow-xl flex flex-col overflow-hidden">
+          
+          <!-- Header -->
+          <div class="p-3 sm:p-4 flex-shrink-0 border-b border-zinc-700">
+            <h2 class="text-base sm:text-lg font-semibold text-white font-inter">Summary</h2>
+          </div>
+          
+          <!-- Graph container -->
+          <div class="flex-1 p-3 sm:p-4 flex items-stretch min-h-0">
+            <div class="grid grid-cols-2 gap-2 sm:gap-3 w-full">
+              
+              <div *ngFor="let stat of summaryStats" class="bg-neutral-800 border border-zinc-700 flex items-center justify-center hover:border-zinc-600 transition-colors duration-150 min-h-[120px] sm:min-h-[140px]">
+                <app-graph 
+                  [value]="stat.value" 
+                  [label]="stat.label"
+                  [reverseColor]="true">
+                </app-graph>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ✅ Alt kısım - Available Tasks -->
+      <div class="bg-neutral-900 border border-zinc-700 hover:border-zinc-600 transition-colors duration-150 shadow-xl flex flex-col flex-1 min-h-0 overflow-hidden">
+        
+        <!-- Header -->
+        <div class="p-3 sm:p-4 flex-shrink-0 border-b border-zinc-700">
+          <h2 class="text-base sm:text-lg font-semibold text-white font-inter">Available Tasks</h2>
+        </div>
+
+        <!-- Scroll container -->
+        <div class="flex-1 flex flex-col gap-1.5 sm:gap-2 overflow-y-auto custom-scrollbar p-2 sm:p-3 min-h-0">
+          <div *ngFor="let task of availableTasks" class="flex-1 min-h-[80px] sm:min-h-[90px]">
+            <app-non-adopted-task
+              [imageSource]="task.image"
+              [orderId]="task.orderId"
+              [name]="task.name"
+              [createdDate]="task.date"
+              class="h-full block">
+            </app-non-adopted-task>
+          </div>
+        </div>
+
+        <!-- Pagination -->
+        <div class="p-2 sm:p-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 flex-shrink-0 border-t border-zinc-700">
+          <span class="text-[10px] sm:text-xs text-neutral-400 font-medium font-inter">
+            Showing {{ getAvailableTasksStartIndex() }}-{{ getAvailableTasksEndIndex() }} of {{ allAvailableTasks.length }} entries
+          </span>
+          <div class="flex bg-neutral-800 border border-zinc-700 overflow-hidden">
+            <button 
+              (click)="previousAvailableTasksPage()"
+              [disabled]="availableTasksPage === 1"
+              class="px-2 sm:px-3 py-1 sm:py-1.5 text-[10px] sm:text-xs text-white hover:bg-neutral-700 border-r border-zinc-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-inter">
+              Previous
+            </button>
+            <button 
+              *ngFor="let page of getAvailableTasksPageNumbers()"
+              (click)="goToAvailableTasksPage(page)"
+              [ngClass]="{
+                'bg-yellow-400 text-black font-bold': page === availableTasksPage,
+                'text-white hover:bg-neutral-700': page !== availableTasksPage
+              }"
+              class="px-2 sm:px-3 py-1 sm:py-1.5 text-[10px] sm:text-xs border-l border-zinc-700 transition-colors font-inter">
+              {{ page }}
+            </button>
+            <button 
+              (click)="nextAvailableTasksPage()"
+              [disabled]="availableTasksPage === availableTasksTotalPages"
+              class="px-2 sm:px-3 py-1 sm:py-1.5 text-[10px] sm:text-xs text-white hover:bg-neutral-700 border-l border-zinc-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-inter">
+              Next
+            </button>
           </div>
         </div>
       </div>
 
     </div>
-
-    <div class="flex flex-col">
-      <h2 class="text-lg font-bold text-white mb-4">Available Tasks</h2>
-
-      <div class="flex flex-col gap-4">
-        <div *ngFor="let task of availableTasks">
-          <app-non-adopted-task
-            [imageSource]="task.image"
-            [orderId]="task.orderId"
-            [name]="task.name"
-            [createdDate]="task.date">
-          </app-non-adopted-task>
-        </div>
-      </div>
-
-      <div class="mt-6 flex items-center justify-between bg-black pb-4">
-        <span class="text-xs text-zinc-400 font-medium">Showing 3 results of 13 total entries.</span>
-        <div class="flex bg-zinc-800 rounded border border-zinc-700 overflow-hidden">
-          <button class="px-4 py-2 text-xs text-zinc-300 hover:bg-zinc-700 border-r border-zinc-700 transition-colors">Previous</button>
-          <button class="px-4 py-2 text-xs text-black bg-zinc-400 font-bold">1</button>
-          <button class="px-4 py-2 text-xs text-zinc-300 hover:bg-zinc-700 border-l border-zinc-700 transition-colors">2</button>
-          <button class="px-4 py-2 text-xs text-zinc-300 hover:bg-zinc-700 border-l border-zinc-700 transition-colors">3</button>
-          <button class="px-4 py-2 text-xs text-zinc-300 hover:bg-zinc-700 border-l border-zinc-700 transition-colors">Next</button>
-        </div>
-      </div>
-    </div>
-
+    
   </div>
 </div>
