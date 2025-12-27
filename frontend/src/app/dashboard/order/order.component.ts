@@ -15,6 +15,7 @@ import {
   OrderType,
   OrderEstimations 
 } from './models';
+import { OrderIdShortPipe } from '../manifacturer-pool/order-id-short.pipe';
 
 @Component({
   selector: 'app-order',
@@ -47,7 +48,28 @@ export class OrderComponent implements OnInit, OnDestroy {
   bottomTextures = Object.values(BottomTexture);
   brands = Object.values(Brand);
 
-  colors = ['Red', 'Blue', 'Yellow', 'Black', 'White', 'Green', 'Orange', 'Purple', 'Gray'];
+  colors = [
+    'Red', 
+    'Blue', 
+    'Yellow', 
+    'Black', 
+    'White', 
+    'Green', 
+    'Orange', 
+    'Purple', 
+    'Gray',
+    'Pink',
+    'Cyan',
+    'Brown',
+    'Gold',
+    'Silver',
+    'Transparent',
+    'Lime',
+    'Teal',
+    'Indigo',
+    'Navy'
+  ];
+
   infillOptions = [10, 15, 20, 25, 30, 50, 75, 100];
   layerHeights = [0.1, 0.15, 0.2, 0.25, 0.3];
   nozzleSizes = [0.2, 0.4, 0.6, 0.8];
@@ -288,6 +310,7 @@ export class OrderComponent implements OnInit, OnDestroy {
       file_id: this.uploadedFileId,
       notes: formValue.notes || '',
       order_type: formValue.orderType,
+      quantity: formValue.quantity,
       order_detail: this.isFDM ? {
         material: formValue.material,
         brand: formValue.brand,
