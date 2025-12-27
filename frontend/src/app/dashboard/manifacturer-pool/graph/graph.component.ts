@@ -11,6 +11,7 @@ export class GraphComponent implements OnChanges {
 
   @Input() value: number = 0;      
   @Input() label: string = '';
+  @Input() count: number = 0;  // ✅ Yeni: Adet sayısı
   @Input() reverseColor: boolean = false;
 
   radius = 40;
