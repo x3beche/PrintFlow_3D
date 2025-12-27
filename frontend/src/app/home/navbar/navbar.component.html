@@ -1,5 +1,5 @@
 <nav
-  class="bg-neutral-900 border-neutral-700 border-[1px] fixed top-4 left-1/2 transform -translate-x-1/2 w-[90%] md:w-[45%] lg:w-[23%] shadow-lg"
+  class="bg-neutral-900 border-neutral-700 border-[1px] rounded-md fixed top-4 left-1/2 transform -translate-x-1/2 w-[90%] md:w-[45%] lg:w-[23%] shadow-lg z-50"
 >
   <div class="flex items-center justify-between h-12 px-4">
     <!-- Logo -->
@@ -13,7 +13,7 @@
       >
       <button
         (click)="showLoginModal()"
-        class="text-black font-inter text-sm bg-emerald-400 hover:bg-emerald-300 border border-emerald-400 px-3 py-1.5 transition font-medium"
+        class="text-black font-inter rounded-sm text-sm bg-emerald-400 hover:bg-emerald-300 border border-emerald-400 px-3 py-1.5 transition font-medium"
       >
         Sign In
       </button>
@@ -70,6 +70,7 @@
   </div>
 </nav>
 
+<!-- Login Modal (aynı kalıyor) -->
 <div
   id="LoginModal"
   tabindex="-1"
