@@ -52,7 +52,7 @@
     <!-- Navigation Buttons -->
     <div class="flex flex-col">
       <!-- New Order Button - Sadece "user" rolü için -->
-      <button *ngIf="userRole === 'user'" routerLink="/order/new"
+      <button *ngIf="userRole === 'user'  || userRole === 'admin'" routerLink="/order/new"
         class="flex items-center py-2.5 w-full h-11 hover:bg-gray-100 dark:hover:bg-zinc-800 transition" [ngClass]="{
           'justify-start gap-3': !isCollapsed,
           'justify-center flex-col gap-1': isCollapsed
@@ -65,10 +65,10 @@
         </svg>
         <span *ngIf="!isCollapsed" class="font-medium text-sm font-inter text-zinc-100">New Order</span>
       </button>
-      <hr *ngIf="userRole === 'user'" class="border-gray-300 dark:border-zinc-700" />
+      <hr *ngIf="userRole === 'user'  || userRole === 'admin'" class="border-gray-300 dark:border-zinc-700" />
 
       <!-- Orders Button - Sadece "user" rolü için -->
-      <button *ngIf="userRole === 'user'" routerLink="/order/list"
+      <button *ngIf="userRole === 'user' || userRole === 'admin'" routerLink="/order/list"
         class="flex items-center py-2.5 w-full h-11 hover:bg-gray-100 dark:hover:bg-zinc-800 transition" [ngClass]="{
           'justify-start gap-3': !isCollapsed,
           'justify-center flex-col gap-1': isCollapsed
@@ -81,7 +81,7 @@
         </svg>
         <span *ngIf="!isCollapsed" class="font-medium text-sm font-inter text-zinc-100">Orders</span>
       </button>
-      <hr *ngIf="userRole === 'user'" class="border-gray-300 dark:border-zinc-700" />
+      <hr *ngIf="userRole === 'user'  || userRole === 'admin'" class="border-gray-300 dark:border-zinc-700" />
 
       <!-- Pool Button - Sadece "manufacturer" rolü için -->
       <button *ngIf="userRole === 'manufacturer'" routerLink="/manufacturer/order/pool"
