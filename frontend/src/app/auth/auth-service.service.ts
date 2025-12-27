@@ -31,62 +31,68 @@ export class AuthService {
     return localStorage.getItem(this.tokenKey);
   }
 
-  // Kullanıcı bilgilerini al
   getUser(): any {
     const userStr = localStorage.getItem("user");
     return userStr ? JSON.parse(userStr) : null;
   }
 
-  // Kullanıcının rolünü al
   getUserRole(): string | null {
     const user = this.getUser();
     return user && user.role ? user.role : null;
   }
 
-  // Kullanıcının belirli bir role sahip olup olmadığını kontrol et
   hasRole(role: string): boolean {
     const userRole = this.getUserRole();
     return userRole === role;
   }
 
-  // Kullanıcının birden fazla rolden birine sahip olup olmadığını kontrol et
   hasAnyRole(roles: string[]): boolean {
     const userRole = this.getUserRole();
     return userRole ? roles.includes(userRole) : false;
   }
 
   login(username: string, password: string): Observable<any> {
-    // Create URL-encoded form data
-
     const body = new HttpParams()
       .set("username", username)
       .set("password", password);
 
-    // Set headers to specify content type
     const headers = new HttpHeaders().set(
       "Content-Type",
       "application/x-www-form-urlencoded"
     );
 
-    // Send a POST request with the form data and headers
     return this.http
       .post<any>(`${this.apiUrl}`, body.toString(), { headers })
       .pipe(
         tap((response) => {
-          // Save the response to local storage upon successful login
           localStorage.setItem(this.tokenKey, response.access_token);
           localStorage.setItem("user", JSON.stringify(response.user));
           this.isAuthenticatedSubject.next(true);
-          // You can also store specific data from the response if needed
-          // localStorage.setItem('user_id', response.user_id);
+          
+          // Redirect based on role after successful login
+          this.redirectAfterLogin();
         })
       );
+  }
+
+  // Role-based redirection after login
+  redirectAfterLogin(): void {
+    const userRole = this.getUserRole();
+    
+    if (userRole === 'user') {
+      this.router.navigate(['/order']);
+    } else if (userRole === 'manufacturer') {
+      this.router.navigate(['/manufacturer']);
+    } else {
+      // Default fallback
+      this.router.navigate(['/']);
+    }
   }
 
   logout(): void {
     localStorage.removeItem(this.tokenKey);
     localStorage.removeItem("user");
     this.isAuthenticatedSubject.next(false);
-    this.router.navigate([""]);
+    this.router.navigate(["/login"]);
   }
 }

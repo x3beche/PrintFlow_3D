@@ -18,8 +18,34 @@ class PermissionsService {
     state: RouterStateSnapshot
   ): boolean {
     let status = this.authService.hasToken();
-    if (!status) this.router.navigate(['/login']);
-    return status;
+    if (!status) {
+      this.router.navigate(['/login']);
+      return false;
+    }
+
+    // Role-based route protection
+    const expectedRoles = next.data['roles'] as string[];
+    if (expectedRoles) {
+      const hasAccess = this.authService.hasAnyRole(expectedRoles);
+      if (!hasAccess) {
+        // Redirect to appropriate page based on user role
+        this.redirectBasedOnRole();
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  private redirectBasedOnRole(): void {
+    const userRole = this.authService.getUserRole();
+    if (userRole === 'user') {
+      this.router.navigate(['/order']);
+    } else if (userRole === 'manufacturer') {
+      this.router.navigate(['/manufacturer']);
+    } else {
+      this.router.navigate(['/']);
+    }
   }
 }
 
@@ -41,8 +67,23 @@ class ReversePermissionsService {
     state: RouterStateSnapshot
   ): boolean {
     let status = this.authService.hasToken();
-    if (status) this.router.navigate(['/order']);
-    return !status;
+    if (status) {
+      // Redirect based on role instead of hardcoded route
+      this.redirectBasedOnRole();
+      return false;
+    }
+    return true;
+  }
+
+  private redirectBasedOnRole(): void {
+    const userRole = this.authService.getUserRole();
+    if (userRole === 'user') {
+      this.router.navigate(['/order/new']);
+    } else if (userRole === 'manufacturer') {
+      this.router.navigate(['/manufacturer/order/pool']);
+    } else {
+      this.router.navigate(['/']);
+    }
   }
 }
 
