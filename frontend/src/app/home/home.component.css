@@ -11,15 +11,30 @@
 .hero-grid {
   animation: gridFade 10s ease-in-out infinite;
 }
-/* Shapes Container */
+/* Custom grid animations */
+@keyframes gridFade {
+  0%, 100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.hero-grid {
+  animation: gridFade 10s ease-in-out infinite;
+}
+
+/* Shapes Container - Responsive */
 .shapes-container {
-  perspective: 1200px;
+  perspective: 800px;
   width: 100%;
   height: 100%;
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 20px;
 }
 
 .shape-item {
@@ -29,46 +44,136 @@
   gap: 20px;
 }
 
+/* Responsive Cube Sizes */
 .shape-3d {
-  width: 250px;
-  height: 250px;
+  width: 120px;
+  height: 120px;
   position: relative;
   transform-style: preserve-3d;
   animation: rotateShape 15s infinite linear;
 }
 
-/* Cube Faces */
-.face-3d {
-  position: absolute;
-  width: 250px;
-  height: 250px;
-  border: 3px solid rgba(52, 211, 153, 0.7);
-  background: rgba(52, 211, 153, 0.05);
-  box-shadow: 0 0 15px rgba(52, 211, 153, 0.3);
+/* Tablet */
+@media (min-width: 640px) {
+  .shapes-container {
+    perspective: 1000px;
+  }
+  
+  .shape-3d {
+    width: 180px;
+    height: 180px;
+  }
 }
 
-.face-front  { transform: rotateY(0deg) translateZ(125px); }
-.face-back   { transform: rotateY(180deg) translateZ(125px); }
-.face-right  { transform: rotateY(90deg) translateZ(125px); }
-.face-left   { transform: rotateY(-90deg) translateZ(125px); }
-.face-top    { transform: rotateX(90deg) translateZ(125px); }
-.face-bottom { transform: rotateX(-90deg) translateZ(125px); }
+/* Desktop */
+@media (min-width: 1024px) {
+  .shapes-container {
+    perspective: 1200px;
+  }
+  
+  .shape-3d {
+    width: 250px;
+    height: 250px;
+  }
+}
 
-/* Grid pattern on faces */
+/* Cube Faces - Mobile */
+.face-3d {
+  position: absolute;
+  width: 120px;
+  height: 120px;
+  border: 2px solid rgba(52, 211, 153, 0.7);
+  background: rgba(52, 211, 153, 0.05);
+  box-shadow: 0 0 10px rgba(52, 211, 153, 0.3);
+}
+
+/* Tablet */
+@media (min-width: 640px) {
+  .face-3d {
+    width: 180px;
+    height: 180px;
+    border: 2.5px solid rgba(52, 211, 153, 0.7);
+    box-shadow: 0 0 12px rgba(52, 211, 153, 0.3);
+  }
+}
+
+/* Desktop */
+@media (min-width: 1024px) {
+  .face-3d {
+    width: 250px;
+    height: 250px;
+    border: 3px solid rgba(52, 211, 153, 0.7);
+    box-shadow: 0 0 15px rgba(52, 211, 153, 0.3);
+  }
+}
+
+/* Face Positions - Mobile (120px cube) */
+.face-front  { transform: rotateY(0deg) translateZ(60px); }
+.face-back   { transform: rotateY(180deg) translateZ(60px); }
+.face-right  { transform: rotateY(90deg) translateZ(60px); }
+.face-left   { transform: rotateY(-90deg) translateZ(60px); }
+.face-top    { transform: rotateX(90deg) translateZ(60px); }
+.face-bottom { transform: rotateX(-90deg) translateZ(60px); }
+
+/* Tablet (180px cube) */
+@media (min-width: 640px) {
+  .face-front  { transform: rotateY(0deg) translateZ(90px); }
+  .face-back   { transform: rotateY(180deg) translateZ(90px); }
+  .face-right  { transform: rotateY(90deg) translateZ(90px); }
+  .face-left   { transform: rotateY(-90deg) translateZ(90px); }
+  .face-top    { transform: rotateX(90deg) translateZ(90px); }
+  .face-bottom { transform: rotateX(-90deg) translateZ(90px); }
+}
+
+/* Desktop (250px cube) */
+@media (min-width: 1024px) {
+  .face-front  { transform: rotateY(0deg) translateZ(125px); }
+  .face-back   { transform: rotateY(180deg) translateZ(125px); }
+  .face-right  { transform: rotateY(90deg) translateZ(125px); }
+  .face-left   { transform: rotateY(-90deg) translateZ(125px); }
+  .face-top    { transform: rotateX(90deg) translateZ(125px); }
+  .face-bottom { transform: rotateX(-90deg) translateZ(125px); }
+}
+
+/* Grid pattern on faces - Responsive */
 .face-3d::before {
   content: '';
   position: absolute;
   inset: 0;
   background-image: 
-    linear-gradient(rgba(52, 211, 153, 0.2) 2px, transparent 2px),
-    linear-gradient(90deg, rgba(52, 211, 153, 0.2) 2px, transparent 2px);
-  background-size: 30px 30px;
+    linear-gradient(rgba(52, 211, 153, 0.2) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(52, 211, 153, 0.2) 1px, transparent 1px);
+  background-size: 15px 15px;
+}
+
+@media (min-width: 640px) {
+  .face-3d::before {
+    background-size: 20px 20px;
+    background-image: 
+      linear-gradient(rgba(52, 211, 153, 0.2) 1.5px, transparent 1.5px),
+      linear-gradient(90deg, rgba(52, 211, 153, 0.2) 1.5px, transparent 1.5px);
+  }
+}
+
+@media (min-width: 1024px) {
+  .face-3d::before {
+    background-size: 30px 30px;
+    background-image: 
+      linear-gradient(rgba(52, 211, 153, 0.2) 2px, transparent 2px),
+      linear-gradient(90deg, rgba(52, 211, 153, 0.2) 2px, transparent 2px);
+  }
 }
 
 .shape-label {
-  font-size: 14px;
+  font-size: 12px;
   color: rgb(156, 163, 175);
   font-weight: 500;
+}
+
+@media (min-width: 640px) {
+  .shape-label {
+    font-size: 14px;
+  }
 }
 
 @keyframes rotateShape {

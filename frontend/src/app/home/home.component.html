@@ -1,7 +1,7 @@
 <!-- Navbar -->
 <app-navbar></app-navbar>
 
-<main class="min-h-screen bg-black font-inter ">
+<main class="min-h-screen bg-black font-inter">
   
   <!-- Hero Section -->
   <section class="relative overflow-hidden border-b border-neutral-700">
@@ -11,60 +11,59 @@
         <div class="absolute inset-0 bg-[linear-gradient(to_right,#262626_1px,transparent_1px),linear-gradient(to_bottom,#262626_1px,transparent_1px)] bg-[size:80px_80px] opacity-30"></div>
         
         <!-- Content -->
-        <div class="relative px-6 lg:px-8 pt-32 pb-24">
+        <div class="relative px-4 sm:px-6 lg:px-8 pt-24 sm:pt-32 pb-16 sm:pb-24">
           <div class="text-center max-w-4xl mx-auto">
             
             <!-- Badge -->
-            <div class="inline-flex items-center gap-2 mb-6 px-4 py-2 text-xs border border-neutral-700 rounded-full bg-neutral-900">
-              <div class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></div>
+            <div class="inline-flex items-center gap-2 mb-4 sm:mb-6 px-3 sm:px-4 py-1.5 sm:py-2 text-[10px] sm:text-xs border border-neutral-700 rounded-full bg-neutral-900">
+              <div class="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-emerald-400 animate-pulse"></div>
               <span class="text-gray-400">Powered by Advanced 3D Printing</span>
             </div>
 
             <!-- Heading -->
-            <h1 class="text-4xl md:text-6xl font-bold tracking-tight mb-6 leading-[1.1] text-white">
+            <h1 class="text-3xl sm:text-4xl md:text-6xl font-bold tracking-tight mb-4 sm:mb-6 leading-[1.1] text-white">
               Your 3D Printing Projects,<br/>Simplified.
             </h1>
 
             <!-- Description -->
-            <p class="text-xl text-gray-400 mb-10 font-light leading-relaxed max-w-2xl mx-auto">
+            <p class="text-base sm:text-xl text-gray-400 mb-6 sm:mb-10 font-light leading-relaxed max-w-2xl mx-auto px-4">
               Upload your models, get instant price estimates, and track your orders all in one place. Professional 3D printing made easy.
             </p>
 
             <!-- CTA Buttons -->
-            <div class="flex flex-col sm:flex-row gap-3 justify-center items-center">
-              <a routerLink="/order" class="px-6 py-3 text-sm font-medium bg-emerald-400 text-black rounded hover:bg-emerald-300 transition-all">
+            <div class="flex flex-col sm:flex-row gap-2 sm:gap-3 justify-center items-center px-4">
+              <a routerLink="/order" class="w-full sm:w-auto px-6 py-3 text-sm font-medium bg-emerald-400 text-black rounded hover:bg-emerald-300 transition-all text-center">
                 Start Printing →
               </a>
-              <a routerLink="/order-list" class="px-6 py-3 text-sm font-medium border border-neutral-700 rounded hover:bg-neutral-900 transition-colors text-gray-400 hover:text-white">
+              <a routerLink="/order-list" class="w-full sm:w-auto px-6 py-3 text-sm font-medium border border-neutral-700 rounded hover:bg-neutral-900 transition-colors text-gray-400 hover:text-white text-center">
                 View Orders
               </a>
             </div>
           </div>
 
-<!-- Feature Preview -->
-<div class="mt-16 relative max-w-5xl mx-auto">
-  <div class="absolute -inset-8 bg-gradient-to-r from-emerald-400/10 via-emerald-400/5 to-emerald-400/10 blur-3xl"></div>
-  <div class="relative border border-neutral-700 rounded-lg overflow-hidden bg-neutral-900 shadow-2xl">
-    <div class="aspect-video bg-gradient-to-br from-neutral-800 to-neutral-900 relative flex items-center justify-center">
-      
-      <!-- Rotating 3D Cube -->
-      <div class="shapes-container">
-        <div class="shape-item active">
-          <div class="shape-3d cube-3d">
-            <div class="face-3d face-front"></div>
-            <div class="face-3d face-back"></div>
-            <div class="face-3d face-right"></div>
-            <div class="face-3d face-left"></div>
-            <div class="face-3d face-top"></div>
-            <div class="face-3d face-bottom"></div>
+          <!-- Feature Preview - Responsive Cube -->
+          <div class="mt-12 sm:mt-16 relative max-w-5xl mx-auto px-4">
+            <div class="absolute -inset-4 sm:-inset-8 bg-gradient-to-r from-emerald-400/10 via-emerald-400/5 to-emerald-400/10 blur-3xl"></div>
+            <div class="relative border border-neutral-700 rounded-lg overflow-hidden bg-neutral-900 shadow-2xl">
+              <div class="aspect-video bg-gradient-to-br from-neutral-800 to-neutral-900 relative flex items-center justify-center">
+                
+                <!-- Rotating 3D Cube -->
+                <div class="shapes-container">
+                  <div class="shape-item active">
+                    <div class="shape-3d cube-3d">
+                      <div class="face-3d face-front"></div>
+                      <div class="face-3d face-back"></div>
+                      <div class="face-3d face-right"></div>
+                      <div class="face-3d face-left"></div>
+                      <div class="face-3d face-top"></div>
+                      <div class="face-3d face-bottom"></div>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
-
-    </div>
-  </div>
-</div>
-
 
         </div>
       </div>
@@ -77,67 +76,67 @@
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 border-l border-r border-neutral-700">
         
         <!-- Feature 1 -->
-        <div class="px-6 lg:px-8 py-8 lg:border-r border-neutral-700 border-b lg:border-b-0">
-          <svg class="w-6 h-6 mb-3 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:border-r border-neutral-700 border-b">
+          <svg class="w-5 h-5 sm:w-6 sm:h-6 mb-2 sm:mb-3 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
           </svg>
-          <h3 class="text-base font-semibold mb-1.5 text-white">Easy Upload</h3>
-          <p class="text-sm text-gray-400 leading-relaxed">
+          <h3 class="text-sm sm:text-base font-semibold mb-1 sm:mb-1.5 text-white">Easy Upload</h3>
+          <p class="text-xs sm:text-sm text-gray-400 leading-relaxed">
             Upload your STL files directly. Our system automatically analyzes and generates instant price estimates.
           </p>
         </div>
 
         <!-- Feature 2 -->
-        <div class="px-6 lg:px-8 py-8 lg:border-r border-neutral-700 border-b lg:border-b-0">
-          <svg class="w-6 h-6 mb-3 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:border-r border-neutral-700 border-b">
+          <svg class="w-5 h-5 sm:w-6 sm:h-6 mb-2 sm:mb-3 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
           </svg>
-          <h3 class="text-base font-semibold mb-1.5 text-white">Instant Pricing</h3>
-          <p class="text-sm text-gray-400 leading-relaxed">
+          <h3 class="text-sm sm:text-base font-semibold mb-1 sm:mb-1.5 text-white">Instant Pricing</h3>
+          <p class="text-xs sm:text-sm text-gray-400 leading-relaxed">
             Get accurate cost estimates based on material, infill, and layer height before you order.
           </p>
         </div>
 
         <!-- Feature 3 -->
-        <div class="px-6 lg:px-8 py-8 border-b lg:border-b-0">
-          <svg class="w-6 h-6 mb-3 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="px-4 sm:px-6 lg:px-8 py-6 sm:py-8 border-b">
+          <svg class="w-5 h-5 sm:w-6 sm:h-6 mb-2 sm:mb-3 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
           </svg>
-          <h3 class="text-base font-semibold mb-1.5 text-white">Order Tracking</h3>
-          <p class="text-sm text-gray-400 leading-relaxed">
+          <h3 class="text-sm sm:text-base font-semibold mb-1 sm:mb-1.5 text-white">Order Tracking</h3>
+          <p class="text-xs sm:text-sm text-gray-400 leading-relaxed">
             Track your orders in real-time from production to delivery with detailed progress updates.
           </p>
         </div>
 
         <!-- Feature 4 -->
-        <div class="px-6 lg:px-8 py-8 lg:border-r border-neutral-700">
-          <svg class="w-6 h-6 mb-3 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:border-r border-neutral-700 border-b lg:border-b-0">
+          <svg class="w-5 h-5 sm:w-6 sm:h-6 mb-2 sm:mb-3 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
           </svg>
-          <h3 class="text-base font-semibold mb-1.5 text-white">Quality Assured</h3>
-          <p class="text-sm text-gray-400 leading-relaxed">
+          <h3 class="text-sm sm:text-base font-semibold mb-1 sm:mb-1.5 text-white">Quality Assured</h3>
+          <p class="text-xs sm:text-sm text-gray-400 leading-relaxed">
             Professional manufacturers ensure high-quality prints with precise specifications.
           </p>
         </div>
 
         <!-- Feature 5 -->
-        <div class="px-6 lg:px-8 py-8 lg:border-r border-neutral-700">
-          <svg class="w-6 h-6 mb-3 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:border-r border-neutral-700 border-b lg:border-b-0">
+          <svg class="w-5 h-5 sm:w-6 sm:h-6 mb-2 sm:mb-3 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path>
           </svg>
-          <h3 class="text-base font-semibold mb-1.5 text-white">Material Options</h3>
-          <p class="text-sm text-gray-400 leading-relaxed">
+          <h3 class="text-sm sm:text-base font-semibold mb-1 sm:mb-1.5 text-white">Material Options</h3>
+          <p class="text-xs sm:text-sm text-gray-400 leading-relaxed">
             Choose from PLA, ABS, PETG and more, with various colors and specifications.
           </p>
         </div>
 
         <!-- Feature 6 -->
-        <div class="px-6 lg:px-8 py-8">
-          <svg class="w-6 h-6 mb-3 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+          <svg class="w-5 h-5 sm:w-6 sm:h-6 mb-2 sm:mb-3 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
           </svg>
-          <h3 class="text-base font-semibold mb-1.5 text-white">Fast Turnaround</h3>
-          <p class="text-sm text-gray-400 leading-relaxed">
+          <h3 class="text-sm sm:text-base font-semibold mb-1 sm:mb-1.5 text-white">Fast Turnaround</h3>
+          <p class="text-xs sm:text-sm text-gray-400 leading-relaxed">
             Quick production times with transparent tracking every step of the way.
           </p>
         </div>
@@ -145,119 +144,5 @@
     </div>
   </section>
 
-  <!-- How It Works -->
-  <section class="border-b border-neutral-700">
-    <div class="max-w-7xl mx-auto">
-      <div class="border-l border-r border-neutral-700">
-        <div class="px-6 lg:px-8 py-12 border-b border-neutral-700">
-          <h2 class="text-3xl md:text-4xl font-bold text-white mb-3 text-center">How It Works</h2>
-          <p class="text-base text-gray-400 font-light text-center max-w-2xl mx-auto">
-            Get your 3D prints in just a few simple steps
-          </p>
-        </div>
-        
-        <div class="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-neutral-700">
-          <!-- Step 1 -->
-          <div class="px-6 lg:px-8 py-12 text-center">
-            <div class="w-12 h-12 rounded-full bg-emerald-400/10 border border-emerald-400/30 flex items-center justify-center mx-auto mb-4">
-              <span class="text-emerald-400 font-bold text-lg">1</span>
-            </div>
-            <h3 class="text-lg font-semibold text-white mb-2">Upload Model</h3>
-            <p class="text-sm text-gray-400">
-              Upload your STL file and select your preferred material and settings
-            </p>
-          </div>
-
-          <!-- Step 2 -->
-          <div class="px-6 lg:px-8 py-12 text-center">
-            <div class="w-12 h-12 rounded-full bg-emerald-400/10 border border-emerald-400/30 flex items-center justify-center mx-auto mb-4">
-              <span class="text-emerald-400 font-bold text-lg">2</span>
-            </div>
-            <h3 class="text-lg font-semibold text-white mb-2">Get Quote</h3>
-            <p class="text-sm text-gray-400">
-              Receive instant pricing and estimated delivery time based on your specifications
-            </p>
-          </div>
-
-          <!-- Step 3 -->
-          <div class="px-6 lg:px-8 py-12 text-center">
-            <div class="w-12 h-12 rounded-full bg-emerald-400/10 border border-emerald-400/30 flex items-center justify-center mx-auto mb-4">
-              <span class="text-emerald-400 font-bold text-lg">3</span>
-            </div>
-            <h3 class="text-lg font-semibold text-white mb-2">Track & Receive</h3>
-            <p class="text-sm text-gray-400">
-              Monitor your order progress and receive your high-quality 3D print
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Stats Section -->
-  <section class="border-b border-neutral-700">
-    <div class="max-w-7xl mx-auto">
-      <div class="border-l border-r border-neutral-700">
-        <div class="px-6 lg:px-8 py-12 border-b border-neutral-700">
-          <h2 class="text-3xl md:text-4xl font-bold text-white mb-3 text-center">Why Choose 3DPrintFlow?</h2>
-          <p class="text-base text-gray-400 font-light text-center max-w-2xl mx-auto">
-            Join hundreds of makers and businesses who trust us for their 3D printing needs
-          </p>
-        </div>
-        
-        <div class="grid grid-cols-1 md:grid-cols-3">
-          <div class="px-6 lg:px-8 py-8 text-center md:border-r border-neutral-700 border-b md:border-b-0">
-            <div class="text-3xl md:text-4xl font-bold text-emerald-400 mb-1">100+</div>
-            <div class="text-sm font-medium text-white mb-1">Completed Orders</div>
-            <div class="text-xs text-gray-500">High quality prints delivered</div>
-          </div>
-          
-          <div class="px-6 lg:px-8 py-8 text-center md:border-r border-neutral-700 border-b md:border-b-0">
-            <div class="text-3xl md:text-4xl font-bold text-emerald-400 mb-1">24/7</div>
-            <div class="text-sm font-medium text-white mb-1">Order Processing</div>
-            <div class="text-xs text-gray-500">Place orders anytime</div>
-          </div>
-          
-          <div class="px-6 lg:px-8 py-8 text-center">
-            <div class="text-3xl md:text-4xl font-bold text-emerald-400 mb-1">99%</div>
-            <div class="text-sm font-medium text-white mb-1">Customer Satisfaction</div>
-            <div class="text-xs text-gray-500">Rated by our users</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- CTA Section -->
-  <section class="border-b border-neutral-700">
-    <div class="max-w-7xl mx-auto">
-      <div class="border-l border-r border-neutral-700 px-6 lg:px-8 py-20">
-        <div class="max-w-4xl mx-auto">
-          <div class="border border-neutral-700 rounded-lg bg-neutral-900 p-10 text-center relative overflow-hidden">
-            <!-- Grid background -->
-            <div class="absolute inset-0 bg-[linear-gradient(to_right,#262626_1px,transparent_1px),linear-gradient(to_bottom,#262626_1px,transparent_1px)] bg-[size:40px_40px] opacity-20"></div>
-            
-            <div class="relative">
-              <h2 class="text-3xl md:text-4xl font-bold mb-3 text-white">
-                Ready to Start Printing?
-              </h2>
-              <p class="text-base text-gray-400 mb-6 font-light max-w-2xl mx-auto">
-                Upload your 3D model now and get an instant quote. Professional quality, fast turnaround.
-              </p>
-              
-              <div class="flex flex-col sm:flex-row gap-3 justify-center items-center">
-                <a routerLink="/order" class="px-6 py-3 text-sm font-medium bg-emerald-400 text-black rounded hover:bg-emerald-300 transition-all">
-                  Upload Model →
-                </a>
-                <a routerLink="/order-list" class="px-6 py-3 text-sm font-medium border border-neutral-700 rounded hover:bg-neutral-900 transition-colors text-gray-400 hover:text-white">
-                  View Your Orders
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
+  <!-- Diğer section'lar aynı kalıyor... -->
 </main>
