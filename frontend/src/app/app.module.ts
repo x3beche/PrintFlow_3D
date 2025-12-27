@@ -19,7 +19,6 @@ import { ForgetPasswordComponent } from "./auth/forget-password/forget-password.
 import { NavbarComponent } from "./home/navbar/navbar.component";
 import { OrderComponent } from "./dashboard/order/order.component";
 import { OrderListComponent } from "./dashboard/order-list/order-list.component";
-import { OrderTrackingComponent } from "./dashboard/order-tracking/order-tracking.component";
 import { ManifacturerPoolComponent } from "./dashboard/manifacturer-pool/manifacturer-pool.component";
 import { ManifacturerProcessComponent } from "./dashboard/manifacturer-process/manifacturer-process.component";
 import { GraphComponent } from "./dashboard/manifacturer-pool/graph/graph.component";
@@ -43,7 +42,6 @@ import { NonAdoptedTaskComponent } from "./dashboard/manifacturer-pool/non-adopt
     FileSizePipe,
     OrderComponent,
     OrderListComponent,
-    OrderTrackingComponent,
     ManifacturerPoolComponent,
     ManifacturerProcessComponent 
   ],
