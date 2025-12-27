@@ -1,303 +1,527 @@
+<!-- manifacturer-process.component.html -->
 <app-sidebar></app-sidebar>
-<div class="flex flex-col h-screen bg-neutral-900"
+
+<!-- Loading State -->
+<div *ngIf="isLoading" class="flex flex-col h-screen bg-neutral-900 font-inter"
+  [ngClass]="{ 'sm:ml-48': !sidebarCollapsed, 'sm:ml-12': sidebarCollapsed }">
+  <app-header header_title="Order Page"></app-header>
+  <div class="flex items-center justify-center h-full">
+    <div class="text-center">
+      <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-white border-t-transparent mb-4"></div>
+      <p class="text-white text-xl font-semibold">Loading order details...</p>
+    </div>
+  </div>
+</div>
+
+<!-- Error State -->
+<div *ngIf="errorMessage && !isLoading" class="flex flex-col h-screen bg-neutral-900 font-inter"
+  [ngClass]="{ 'sm:ml-48': !sidebarCollapsed, 'sm:ml-12': sidebarCollapsed }">
+  <app-header header_title="Order Page"></app-header>
+  <div class="flex items-center justify-center h-full">
+    <div class="text-center bg-red-900/20 border border-red-500 p-8 rounded-lg max-w-md">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-red-500 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+      </svg>
+      <p class="text-red-500 text-xl font-semibold mb-4">{{ errorMessage }}</p>
+      <button (click)="loadOrderDetails()" class="bg-red-600 hover:bg-red-500 text-white font-bold py-2 px-6 rounded transition-colors">
+        Try Again
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Main Content -->
+<div *ngIf="!isLoading && !errorMessage" class="flex flex-col h-screen bg-neutral-900 font-inter"
   [ngClass]="{ 'sm:ml-48': !sidebarCollapsed, 'sm:ml-12': sidebarCollapsed }">
   <app-header header_title="Order Page"></app-header>
 
   <!-- main container -->
   <div class="p-4 bg-black h-full w-full overflow-hidden">
 
-  <div class="flex flex-col bg-neutral-900 overflow-hidden relative w-[60%] h-full mx-auto border border-zinc-800 shadow-2xl hover:border-zinc-600 transition-colors duration-150" >
+    <div class="flex flex-col bg-neutral-900 overflow-hidden relative w-[60%] h-full mx-auto border border-zinc-800 shadow-2xl hover:border-zinc-600 transition-colors duration-150">
 
-    <div class="flex flex-col h-full w-full text-white font-inter">
+      <div class="flex flex-col h-full w-full text-white font-inter">
 
-      <header class="bg-neutral-900 border-b border-zinc-700 flex-none z-20">
-        <nav class="flex px-8">
-          <button *ngFor="let tab of tabs" (click)="selectTab(tab)"
-            class="px-8 py-4 text-sm font-semibold transition-colors duration-150 relative focus:outline-none"
-            [ngClass]="{
-              'text-white': tab.active,
-              'text-neutral-400 hover:text-white': !tab.active
-            }">
-            {{ tab.name }}
-            <div *ngIf="tab.active" class="absolute bottom-0 left-0 w-full h-1 bg-white"></div>
-          </button>
-        </nav>
-      </header>
+        <!-- Tab Navigation -->
+        <header class="bg-neutral-900 border-b border-zinc-700 flex-none z-20">
+          <nav class="flex px-8">
+            <button *ngFor="let tab of tabs" (click)="selectTab(tab)"
+              class="px-8 py-4 text-sm font-semibold transition-colors duration-150 relative focus:outline-none"
+              [ngClass]="{
+                'text-white': tab.active,
+                'text-neutral-400 hover:text-white': !tab.active
+              }">
+              {{ tab.name }}
+              <div *ngIf="tab.active" class="absolute bottom-0 left-0 w-full h-1 bg-white"></div>
+            </button>
+          </nav>
+        </header>
 
-      <main class="flex-1 overflow-y-auto bg-neutral-900 w-full no-scrollbar">
+        <!-- Main Content Area -->
+        <main class="flex-1 overflow-y-auto bg-neutral-900 w-full no-scrollbar">
 
-        <div class="p-8 max-w-[1600px] mx-auto w-full h-full flex flex-col">
+          <div class="p-8 max-w-[1600px] mx-auto w-full h-full flex flex-col">
 
-          <div *ngIf="activeTabName === 'Manufacturing'" class="flex flex-col h-full fade-in">
+            <!-- ==================== MANUFACTURING TAB ==================== -->
+            <div *ngIf="activeTabName === 'Manufacturing'" class="flex flex-col h-full fade-in">
 
-            <div class="mb-8 mt-4 flex-none">
-              <div class="flex items-start justify-between relative px-4">
-                <div class="absolute top-5 left-0 w-full h-px bg-zinc-700 -z-0"></div>
-          
-                <div *ngFor="let step of steps; let i = index" class="flex flex-col items-center relative z-10 group cursor-default">
-                  <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg border-4 transition-all duration-300"
-                    [ngClass]="{
-                       'bg-white text-neutral-900 border-neutral-900 scale-110': step.completed,
-                       'bg-neutral-800 text-neutral-500 border-neutral-900': !step.completed
-                     }">
-                    {{ step.id }}
-                  </div>
-          
-                  <div class="mt-3 text-center">
-                    <div class="text-sm font-semibold transition-colors"
-                      [ngClass]="step.completed ? 'text-white' : 'text-neutral-400'">
-                      {{ step.label }}
+              <!-- Progress Steps -->
+              <div class="mb-8 mt-4 flex-none">
+                <div class="flex items-start justify-between relative px-4">
+                  <div class="absolute top-5 left-0 w-full h-px bg-zinc-700 -z-0"></div>
+
+                  <div *ngFor="let step of steps; let i = index" class="flex flex-col items-center relative z-10 group cursor-default">
+                    <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg border-4 transition-all duration-300"
+                      [ngClass]="{
+                         'bg-white text-neutral-900 border-neutral-900 scale-110': step.completed,
+                         'bg-neutral-800 text-neutral-500 border-neutral-900': !step.completed
+                       }">
+                      {{ step.id }}
                     </div>
-                    <div class="text-xs text-neutral-500 mt-1">{{ step.date }}</div>
+
+                    <div class="mt-3 text-center">
+                      <div class="text-sm font-semibold transition-colors"
+                        [ngClass]="step.completed ? 'text-white' : 'text-neutral-400'">
+                        {{ step.label }}
+                      </div>
+                      <div class="text-xs text-neutral-500 mt-1">{{ step.date }}</div>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1 pb-4">
-          
-              <div class="flex flex-col space-y-6">
-          
-                <div class="bg-neutral-800 border border-zinc-700 flex flex-col h-full">
-                  <div class="p-4 border-b border-zinc-700 bg-neutral-800/50">
-                    <h3 class="text-sm font-semibold text-white flex items-center gap-2">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+
+              <!-- Manufacturing Content Grid -->
+              <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1 pb-4">
+
+                <!-- Column 1: Production Specs -->
+                <div class="flex flex-col space-y-6">
+<!-- Production Specs -->
+<div class="bg-neutral-800 border border-zinc-700 flex flex-col h-full">
+  <div class="p-4 border-b border-zinc-700 bg-neutral-800/50">
+    <h3 class="text-sm font-semibold text-white flex items-center gap-2">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+      </svg>
+      Production Specs
+    </h3>
+  </div>
+
+  <div class="p-6 grid grid-cols-2 gap-y-6 gap-x-4">
+    <div>
+      <span class="block text-xs text-neutral-500 uppercase tracking-wider mb-1">Material</span>
+      <span class="text-sm font-bold text-white font-mono">
+        {{ manufacturingState?.specs?.materialLabel }}
+      </span>
+    </div>
+
+    <div>
+      <span class="block text-xs text-neutral-500 uppercase tracking-wider mb-1">Quantity</span>
+      <span class="text-sm font-bold text-white font-mono">
+        {{ manufacturingState?.specs?.quantity ?? 1 }}
+      </span>
+    </div>
+
+    <div>
+      <span class="block text-xs text-neutral-500 uppercase tracking-wider mb-1">Brand Preference</span>
+      <span class="text-sm font-medium text-white">
+        {{ manufacturingState?.specs?.brand }}
+      </span>
+    </div>
+
+    <div>
+      <span class="block text-xs text-neutral-500 uppercase tracking-wider mb-1">Color Code</span>
+      <div class="flex items-center gap-2">
+        <div class="w-3 h-3 border border-white/20"
+             [style.background-color]="manufacturingState?.specs?.colorHex">
+        </div>
+        <span class="text-sm font-medium text-white">
+          {{ manufacturingState?.specs?.colorName }}
+        </span>
+      </div>
+    </div>
+
+    <div>
+      <span class="block text-xs text-neutral-500 uppercase tracking-wider mb-1">Layer Height</span>
+      <span class="text-sm font-bold text-white font-mono">
+        {{ manufacturingState?.specs?.layerHeight }}
+      </span>
+    </div>
+
+    <div>
+      <span class="block text-xs text-neutral-500 uppercase tracking-wider mb-1">Infill Density</span>
+      <span class="text-sm font-bold text-white font-mono">
+        {{ manufacturingState?.specs?.infill }}
+      </span>
+    </div>
+
+    <div>
+      <span class="block text-xs text-neutral-500 uppercase tracking-wider mb-1">Build Plate</span>
+      <span class="text-sm font-medium text-white">
+        {{ manufacturingState?.specs?.buildPlate }}
+      </span>
+    </div>
+
+    <!-- FDM -->
+    <div *ngIf="manufacturingState?.order?.type === 'FDM'">
+      <span class="block text-xs text-neutral-500 uppercase tracking-wider mb-1">Nozzle Size</span>
+      <span class="text-sm font-medium text-white">
+        {{ manufacturingState?.specs?.nozzleSize || 'N/A' }}
+      </span>
+    </div>
+
+    <!-- SLA -->
+    <div *ngIf="manufacturingState?.order?.type === 'SLA'">
+      <span class="block text-xs text-neutral-500 uppercase tracking-wider mb-1">Resin Type</span>
+      <span class="text-sm font-medium text-white">
+        {{ manufacturingState?.specs?.resinType || 'N/A' }}
+      </span>
+    </div>
+
+    <div *ngIf="manufacturingState?.order?.type === 'SLA'">
+      <span class="block text-xs text-neutral-500 uppercase tracking-wider mb-1">UV Curing</span>
+      <span class="text-sm font-medium text-white">
+        {{ manufacturingState?.specs?.uvCuring || 'N/A' }}
+      </span>
+    </div>
+  </div>
+</div>
+
+                </div>
+
+                <!-- Column 2: File Download & Customer Notes -->
+                <div class="flex flex-col space-y-6">
+                  
+                  <!-- File Download -->
+                  <div class="bg-neutral-800 border border-zinc-700 p-6 flex flex-col justify-center items-center text-center group hover:border-zinc-500 transition-colors">
+                    <div class="bg-neutral-900 p-4 mb-3 border border-zinc-700 group-hover:bg-neutral-800 transition-colors">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                       </svg>
-                      Production Specs
-                    </h3>
+                    </div>
+                    <h4 class="text-white font-semibold text-sm">Download Source File</h4>
+                    <p class="text-xs text-neutral-500 mt-1 mb-4">
+                      {{ manufacturingState?.file?.name }}
+                    </p>
+                    
+                    <!-- DOWNLOAD BUTTON - AYRI SPINNER -->
+                    <button 
+                      (click)="downloadFile()"
+                      [disabled]="isDownloading"
+                      class="bg-white text-neutral-900 text-xs font-bold py-2 px-6 hover:bg-neutral-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
+                      
+                      <!-- Download Spinner -->
+                      <svg *ngIf="isDownloading" class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      
+                      <span>{{ isDownloading ? 'DOWNLOADING...' : 'DOWNLOAD' }}</span>
+                    </button>
                   </div>
-          
-                  <div class="p-6 grid grid-cols-2 gap-y-6 gap-x-4">
-                    <div>
-                      <span class="block text-xs text-neutral-500 uppercase tracking-wider mb-1">Material</span>
-                      <span class="text-sm font-bold text-white font-mono">
-                        {{ manufacturingState?.specs?.materialLabel }}
-                      </span>
+
+                  <!-- Customer Notes -->
+                  <div class="bg-neutral-800 border border-zinc-700 flex-1 flex flex-col">
+                    <div class="p-4 border-b border-zinc-700 bg-neutral-800/50">
+                      <h3 class="text-sm font-semibold text-white">Customer Notes</h3>
                     </div>
-                    <div>
-                      <span class="block text-xs text-neutral-500 uppercase tracking-wider mb-1">Brand Preference</span>
-                      <span class="text-sm font-medium text-white">
-                        {{ manufacturingState?.specs?.brand }}
-                      </span>
+                    <div class="p-4 flex-1">
+                      <div class="w-full h-full bg-neutral-900/50 border border-zinc-700 p-3 text-sm text-neutral-300 italic overflow-y-auto">
+                        "{{ manufacturingState?.customer?.notes || 'No notes provided' }}"
+                      </div>
                     </div>
-                    <div>
-                      <span class="block text-xs text-neutral-500 uppercase tracking-wider mb-1">Color Code</span>
-                      <div class="flex items-center gap-2">
-                        <div class="w-3 h-3 border border-white/20" 
-                             [style.background-color]="manufacturingState?.specs?.colorHex">
-                        </div>
-                        <span class="text-sm font-medium text-white">
-                          {{ manufacturingState?.specs?.colorName }}
+                  </div>
+                </div>
+
+                <!-- Column 3: Customer Info & Action Buttons -->
+                <div class="flex flex-col space-y-6">
+
+                  <!-- Customer Info -->
+                  <div class="bg-neutral-800 border border-zinc-700 p-6">
+                    <div class="flex items-center gap-4 mb-4">
+                      <div class="w-12 h-12 bg-neutral-700 flex items-center justify-center text-white font-bold text-xl border border-zinc-600">
+                        {{ manufacturingState?.customer?.initials }}
+                      </div>
+                      <div>
+                        <h3 class="text-white font-bold text-lg">
+                          {{ manufacturingState?.customer?.fullName }}
+                        </h3>
+                        <p class="text-xs text-neutral-500">
+                          User ID: {{ manufacturingState?.customer?.userId }}
+                        </p>
+                      </div>
+                    </div>
+                    <div class="space-y-2 border-t border-zinc-700 pt-4">
+                      <div class="flex justify-between">
+                        <span class="text-xs text-neutral-500">Order Date</span>
+                        <span class="text-xs text-white">
+                          {{ manufacturingState?.order?.date }}
+                        </span>
+                      </div>
+                      <div class="flex justify-between">
+                        <span class="text-xs text-neutral-500">Previous Orders</span>
+                        <span class="text-xs text-white">
+                          {{ manufacturingState?.customer?.orderHistory }}
                         </span>
                       </div>
                     </div>
-                    <div>
-                      <span class="block text-xs text-neutral-500 uppercase tracking-wider mb-1">Layer Height</span>
-                      <span class="text-sm font-bold text-white font-mono">
-                        {{ manufacturingState?.specs?.layerHeight }}
-                      </span>
-                    </div>
-                    <div>
-                      <span class="block text-xs text-neutral-500 uppercase tracking-wider mb-1">Infill Density</span>
-                      <span class="text-sm font-bold text-white font-mono">
-                        {{ manufacturingState?.specs?.infill }}
-                      </span>
-                    </div>
-                    <div>
-                      <span class="block text-xs text-neutral-500 uppercase tracking-wider mb-1">Build Plate</span>
-                      <span class="text-sm font-medium text-white">
-                        {{ manufacturingState?.specs?.buildPlate }}
-                      </span>
-                    </div>
                   </div>
-                </div>
-              </div>
-          
-              <div class="flex flex-col space-y-6">
-                
-                <div class="bg-neutral-800 border border-zinc-700 p-6 flex flex-col justify-center items-center text-center group hover:border-zinc-500 transition-colors">
-                  <div class="bg-neutral-900 p-4 mb-3 border border-zinc-700 group-hover:bg-neutral-800 transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                    </svg>
-                  </div>
-                  <h4 class="text-white font-semibold text-sm">Download Source File</h4>
-                  <p class="text-xs text-neutral-500 mt-1 mb-4">
-                    {{ manufacturingState?.file?.name }} ({{ manufacturingState?.file?.size }})
-                  </p>
-                  <button class="bg-white text-neutral-900 text-xs font-bold py-2 px-6 hover:bg-neutral-200 transition-colors">
-                    DOWNLOAD
-                  </button>
-                </div>
-          
-                <div class="bg-neutral-800 border border-zinc-700 flex-1 flex flex-col">
-                  <div class="p-4 border-b border-zinc-700 bg-neutral-800/50">
-                    <h3 class="text-sm font-semibold text-white">Customer Notes</h3>
-                  </div>
-                  <div class="p-4 flex-1">
-                    <div class="w-full h-full bg-neutral-900/50 border border-zinc-700 p-3 text-sm text-neutral-300 italic overflow-y-auto">
-                      "{{ finalizationState?.inputs?.notesToCustomer}}"
-                    </div>
-                  </div>
-                </div>
-              </div>
-          
-              <div class="flex flex-col space-y-6">
-          
-                <div class="bg-neutral-800 border border-zinc-700 p-6">
-                  <div class="flex items-center gap-4 mb-4">
-                    <div class="w-12 h-12 bg-neutral-700 flex items-center justify-center text-white font-bold text-xl border border-zinc-600">
-                      {{ manufacturingState?.customer?.initials }}
-                    </div>
-                    <div>
-                      <h3 class="text-white font-bold text-lg">
-                        {{ manufacturingState?.customer?.fullName }}
-                      </h3>
-                      <p class="text-xs text-neutral-500">
-                        User ID: {{ manufacturingState?.customer?.userId }}
+
+                  <!-- Action Buttons -->
+                  <div class="flex-1 flex flex-col justify-end gap-3 mt-auto">
+                    <div class="p-4 bg-yellow-500/10 border border-yellow-500/20 mb-2">
+                      <p class="text-xs text-yellow-500">
+                        <span class="font-bold">⚠️ Attention:</span> Ensure the bed is leveled and filament is sufficient before starting.
                       </p>
                     </div>
-                  </div>
-                  <div class="space-y-2 border-t border-zinc-700 pt-4">
-                    <div class="flex justify-between">
-                      <span class="text-xs text-neutral-500">Order Date</span>
-                      <span class="text-xs text-white">
-                        {{ manufacturingState?.order?.date }}
-                      </span>
-                    </div>
-                    <div class="flex justify-between">
-                      <span class="text-xs text-neutral-500">Previous Orders</span>
-                      <span class="text-xs text-white">
-                        {{ manufacturingState?.customer?.orderHistory }}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-          
-                <div class="flex-1 flex flex-col justify-end gap-3 mt-auto">
-                  <div class="p-4 bg-yellow-500/10 border border-yellow-500/20 mb-2">
-                    <p class="text-xs text-yellow-500">
-                      <span class="font-bold">⚠️ Attention:</span> Ensure the bed is leveled and filament is sufficient before starting.
-                    </p>
-                  </div>
-          
-                  <button class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 border border-blue-400 shadow-[0_0_15px_rgba(37,99,235,0.3)] transition-all active:scale-[0.98]">
-                    START PRODUCTION
-                  </button>
-          
-                  <button class="w-full bg-green-600 hover:bg-green-500 text-white font-bold py-4 border border-green-400 shadow-[0_0_15px_rgba(22,163,74,0.3)] transition-all active:scale-[0.98]">
-                    PRODUCTION COMPLETED
-                  </button>
-                </div>
-              </div>
-          
-            </div>
-          </div>
-          <div *ngIf="activeTabName === 'Finalization'" class="flex flex-col h-full fade-in">
 
-            <div class="mb-12 mt-4 flex-none">
-              <div class="flex items-start justify-between relative px-4">
-                <div class="absolute top-5 left-0 w-full h-px bg-zinc-700 -z-0"></div>
-          
-                <div *ngFor="let step of steps; let i = index" class="flex flex-col items-center relative z-10 group cursor-default">
-                  <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg border-4 transition-all duration-300"
-                    [ngClass]="{
-                      'bg-white text-neutral-900 border-neutral-900 scale-110': step.completed,
-                      'bg-neutral-800 text-neutral-500 border-neutral-900': !step.completed
-                    }">
-                    {{ step.id }}
-                  </div>
-          
-                  <div class="mt-3 text-center">
-                    <div class="text-sm font-semibold transition-colors" [ngClass]="step.completed ? 'text-white' : 'text-neutral-400'">
-                      {{ step.label }}
-                    </div>
-                    <div class="text-xs text-neutral-500 mt-1">{{ step.date }}</div>
+                    <!-- START PRODUCTION BUTTON - AYRI SPINNER -->
+                    <button 
+                      (click)="startProduction()"
+                      [disabled]="isStartingProduction || isProductionStarted()"
+                      class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 px-6 border border-blue-400 shadow-[0_0_15px_rgba(37,99,235,0.3)] transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center rounded-lg">
+                      
+                      <!-- Loading durumu - SADECE isStartingProduction -->
+                      <span *ngIf="isStartingProduction" class="flex items-center gap-3">
+                        <svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <span>STARTING...</span>
+                      </span>
+
+                      <!-- Başlamış durumu -->
+                      <span *ngIf="!isStartingProduction && isProductionStarted()" class="flex items-center justify-between w-full">
+                        <span>PRODUCTION STARTED</span>
+                        <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                          <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                        </svg>
+                      </span>
+
+                      <!-- Normal durumu -->
+                      <span *ngIf="!isStartingProduction && !isProductionStarted()">
+                        START PRODUCTION
+                      </span>
+                    </button>
+
+                    <!-- COMPLETE PRODUCTION BUTTON - AYRI SPINNER -->
+                    <button 
+                      (click)="completeProduction()"
+                      [disabled]="isCompletingProduction || isProductionCompleted() || !isProductionStarted()"
+                      class="w-full bg-green-600 hover:bg-green-500 text-white font-bold py-4 px-6 border border-green-400 shadow-[0_0_15px_rgba(22,163,74,0.3)] transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center rounded-lg">
+                      
+                      <!-- Loading durumu - SADECE isCompletingProduction -->
+                      <span *ngIf="isCompletingProduction" class="flex items-center gap-3">
+                        <svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <span>COMPLETING...</span>
+                      </span>
+
+                      <!-- Tamamlanmış durumu -->
+                      <span *ngIf="!isCompletingProduction && isProductionCompleted()" class="flex items-center justify-between w-full">
+                        <span>COMPLETED</span>
+                        <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                          <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                        </svg>
+                      </span>
+
+                      <!-- Bekleme durumu (production başlamamış) -->
+                      <span *ngIf="!isCompletingProduction && !isProductionCompleted() && !isProductionStarted()">
+                        START PRODUCTION FIRST
+                      </span>
+
+                      <!-- Normal durumu (production başlamış ama bitmemiş) -->
+                      <span *ngIf="!isCompletingProduction && !isProductionCompleted() && isProductionStarted()">
+                        COMPLETE PRODUCTION
+                      </span>
+                    </button>
+
                   </div>
                 </div>
+
               </div>
             </div>
-          
-            <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 flex-1">
-          
-              <div class="lg:col-span-2 flex flex-col">
-                <h3 class="text-sm font-semibold text-white mb-2">Product Image</h3>
-                <div class="group flex-1 min-h-[400px] bg-neutral-800/30 border border-dashed border-zinc-700 flex flex-col items-center justify-center cursor-pointer hover:border-zinc-500 hover:bg-neutral-800 transition-all duration-200">
-                  <div class="text-neutral-500 group-hover:text-neutral-300 mb-2 flex flex-col items-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mb-4 opacity-50 group-hover:opacity-100 transition-opacity" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
-                    <span class="text-sm font-medium">Upload an image of final product</span>
+
+            <!-- ==================== FINALIZATION TAB ==================== -->
+            <div *ngIf="activeTabName === 'Finalization'" class="flex flex-col h-full fade-in">
+
+              <!-- Finalized Banner 
+              <div *ngIf="isFinalized" class="mb-4 p-4 bg-green-900/30 border border-green-500/50 rounded-lg flex items-center gap-3">
+                <svg class="h-6 w-6 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                </svg>
+                <span class="text-green-400 font-semibold">This order has been finalized. All fields are locked.</span>
+              </div>-->
+
+              <!-- Progress Steps -->
+              <div class="mb-12 mt-4 flex-none">
+                <div class="flex items-start justify-between relative px-4">
+                  <div class="absolute top-5 left-0 w-full h-px bg-zinc-700 -z-0"></div>
+
+                  <div *ngFor="let step of steps; let i = index" class="flex flex-col items-center relative z-10 group cursor-default">
+                    <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg border-4 transition-all duration-300"
+                      [ngClass]="{
+                        'bg-white text-neutral-900 border-neutral-900 scale-110': step.completed,
+                        'bg-neutral-800 text-neutral-500 border-neutral-900': !step.completed
+                      }">
+                      {{ step.id }}
+                    </div>
+
+                    <div class="mt-3 text-center">
+                      <div class="text-sm font-semibold transition-colors" [ngClass]="step.completed ? 'text-white' : 'text-neutral-400'">
+                        {{ step.label }}
+                      </div>
+                      <div class="text-xs text-neutral-500 mt-1">{{ step.date }}</div>
+                    </div>
                   </div>
                 </div>
               </div>
-          
-              <div class="lg:col-span-2 flex flex-col h-full space-y-6">
-          
-                <div class="flex-1 flex flex-col">
-                  <h3 class="text-sm font-semibold text-white mb-2">Notes</h3>
-                  <textarea
-                    class="w-full flex-1 min-h-[120px] bg-neutral-900 border border-zinc-700 p-4 text-sm text-white placeholder-neutral-500 focus:outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 resize-none transition-all rounded-sm"
-                    placeholder="If you have any additional notes to the customer, please write here"
-                    [value]="finalizationState?.inputs?.notesToCustomer"></textarea> 
-                    </div>
-          
-                <div class="flex-1 flex flex-col">
-                  <h3 class="text-sm font-semibold text-white mb-2">Delivery Address</h3>
-                  <textarea
-                    class="w-full flex-1 min-h-[120px] bg-neutral-900 border border-zinc-700 p-4 text-sm text-white placeholder-neutral-500 focus:outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 resize-none transition-all rounded-sm"
-                    placeholder="Write details of delivery location"
-                    [value]="finalizationState?.inputs?.deliveryAddress"></textarea>
-                    </div>
-          
-                <div class="mt-auto pt-2">
-                  <h3 class="text-sm font-semibold text-white mb-2">Calculated Price and Filament Usage</h3>
-                  <div class="bg-neutral-800 border border-zinc-700 p-5 grid grid-cols-2 gap-6 shadow-sm">
-                
-                    <div class="flex flex-col">
-                      <label class="text-xs text-neutral-400 mb-1 ml-1">Filament Used</label>
-                      <div class="relative group">
-                        <input type="number"
-                               class="w-full bg-neutral-900 border border-zinc-700 p-3 text-sm text-white placeholder-neutral-600 focus:outline-none focus:border-zinc-500 transition-all rounded-sm"
-                               placeholder="0.00"
-                               [value]="finalizationState?.costs?.filamentUsage">
-                        <span class="absolute right-4 top-3.5 text-xs text-neutral-500 font-medium group-hover:text-neutral-400">gr</span>
+
+              <!-- Finalization Content Grid -->
+              <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 flex-1" [ngClass]="{ 'opacity-60 pointer-events-none': isFinalized }">
+
+                <!-- Product Image Upload (2 columns) -->
+                <div class="lg:col-span-2 flex flex-col">
+                  <h3 class="text-sm font-semibold text-white mb-2">Product Image</h3>
+                  <div 
+                    (click)="!isFinalized && imageInput.click()"
+                    class="group flex-1 min-h-[400px] bg-neutral-800/30 border border-dashed border-zinc-700 flex flex-col items-center justify-center cursor-pointer hover:border-zinc-500 hover:bg-neutral-800 transition-all duration-200 relative overflow-hidden"
+                    [ngClass]="{ 'cursor-not-allowed hover:border-zinc-700 hover:bg-neutral-800/30': isFinalized }">
+                    
+                    <!-- 🆕 IMAGE LOADING SPINNER -->
+                    <div *ngIf="isLoadingImage" class="absolute inset-0 flex items-center justify-center bg-neutral-900/80 z-10">
+                      <div class="text-center">
+                        <svg class="animate-spin h-10 w-10 text-white mx-auto mb-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <span class="text-sm text-neutral-400">Loading image...</span>
                       </div>
                     </div>
-                
-                    <div class="flex flex-col">
-                      <label class="text-xs text-neutral-400 mb-1 ml-1 text-right">Final Price</label>
-                      <div class="relative group">
-                        <input type="number"
-                               class="w-full bg-neutral-900 border border-zinc-700 p-3 text-right text-sm font-bold text-white placeholder-zinc-600 focus:outline-none focus:border-yellow-500 transition-all rounded-sm"
-                               [placeholder]="'Est: ' + (finalizationState?.costs?.estPrice || '0.00')" 
-                               [value]="finalizationState?.costs?.finalPrice">
-                        <span class="absolute left-4 top-3.5 text-xs text-zinc-500 group-hover:text-zinc-400">TL</span>
-                      </div>
+                    
+                    <!-- Image Preview -->
+                    <img *ngIf="finalizationState?.upload?.preview && !isLoadingImage" 
+                         [src]="finalizationState.upload.preview" 
+                         class="absolute inset-0 w-full h-full object-contain p-4" 
+                         alt="Product Preview" />
+                    
+                    <!-- Upload Prompt -->
+                    <div *ngIf="!finalizationState?.upload?.preview && !isLoadingImage" 
+                         class="text-neutral-500 group-hover:text-neutral-300 mb-2 flex flex-col items-center">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mb-4 opacity-50 group-hover:opacity-100 transition-opacity" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                      <span class="text-sm font-medium">Upload an image of final product</span>
+                      <span class="text-xs text-neutral-600 mt-2">Click to browse files</span>
                     </div>
-                
+                    
+                    <input 
+                      #imageInput 
+                      type="file" 
+                      accept="image/*" 
+                      class="hidden" 
+                      [disabled]="isFinalized"
+                      (change)="onImageSelected($event)" />
                   </div>
                 </div>
-          
-              </div>
-            </div>
-          
-            <div class="flex justify-end mt-8 pb-4">
-              <button
-                class="bg-yellow-400 hover:bg-yellow-500 text-neutral-900 font-bold py-3 px-16 shadow-lg hover:shadow-yellow-400/20 transition-all duration-200 transform active:scale-95">
-                Submit
-              </button>
-            </div>
-          
-          </div>
 
-        </div>
-      </main>
+                <!-- Notes, Address & Pricing (2 columns) -->
+                <div class="lg:col-span-2 flex flex-col h-full space-y-6">
+
+                  <!-- Notes to Customer -->
+                  <div class="flex-1 flex flex-col">
+                    <h3 class="text-sm font-semibold text-white mb-2">Notes to Customer</h3>
+                    <textarea
+                      (input)="onNotesChange($event)"
+                      [disabled]="isFinalized"
+                      [readonly]="isFinalized"
+                      class="w-full flex-1 min-h-[120px] bg-neutral-900 border border-zinc-700 p-4 text-sm text-white placeholder-neutral-500 focus:outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 resize-none transition-all rounded-sm disabled:opacity-60 disabled:cursor-not-allowed"
+                      placeholder="If you have any additional notes to the customer, please write here"
+                      [value]="finalizationState?.inputs?.notesToCustomer"></textarea>
+                  </div>
+
+                  <!-- Delivery Address -->
+                  <div class="flex-1 flex flex-col">
+                    <h3 class="text-sm font-semibold text-white mb-2">Delivery Address</h3>
+                    <textarea
+                      (input)="onAddressChange($event)"
+                      [disabled]="isFinalized"
+                      [readonly]="isFinalized"
+                      class="w-full flex-1 min-h-[120px] bg-neutral-900 border border-zinc-700 p-4 text-sm text-white placeholder-neutral-500 focus:outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 resize-none transition-all rounded-sm disabled:opacity-60 disabled:cursor-not-allowed"
+                      placeholder="Write details of delivery location"
+                      [value]="finalizationState?.inputs?.deliveryAddress"></textarea>
+                  </div>
+
+                  <!-- Pricing Section -->
+                  <div class="mt-auto pt-2">
+                    <h3 class="text-sm font-semibold text-white mb-2">Calculated Price and Filament Usage</h3>
+                    <div class="bg-neutral-800 border border-zinc-700 p-5 grid grid-cols-2 gap-6 shadow-sm">
+
+                      <!-- Filament Used -->
+                      <div class="flex flex-col">
+                        <label class="text-xs text-neutral-400 mb-1 ml-1">Filament Used</label>
+                        <div class="relative group">
+                          <input 
+                            type="number"
+                            (input)="onFilamentUsageChange($event)"
+                            [disabled]="isFinalized"
+                            [readonly]="isFinalized"
+                            class="w-full bg-neutral-900 border border-zinc-700 p-3 text-sm text-white placeholder-neutral-600 focus:outline-none focus:border-zinc-500 transition-all rounded-sm disabled:opacity-60 disabled:cursor-not-allowed"
+                            placeholder="0.00"
+                            [value]="finalizationState?.costs?.filamentUsage">
+                          <span class="absolute right-4 top-3.5 text-xs text-neutral-500 font-medium group-hover:text-neutral-400">gr</span>
+                        </div>
+                      </div>
+
+                      <!-- Final Price -->
+                      <div class="flex flex-col">
+                        <label class="text-xs text-neutral-400 mb-1 ml-1 text-right">Final Price</label>
+                        <div class="relative group">
+                          <input 
+                            type="number"
+                            (input)="onFinalPriceChange($event)"
+                            [disabled]="isFinalized"
+                            [readonly]="isFinalized"
+                            class="w-full bg-neutral-900 border border-zinc-700 p-3 text-right text-sm font-bold text-white placeholder-zinc-600 focus:outline-none focus:border-yellow-500 transition-all rounded-sm disabled:opacity-60 disabled:cursor-not-allowed"
+                            [placeholder]="'Est: ' + (finalizationState?.costs?.estPrice || '0.00')" 
+                            [value]="finalizationState?.costs?.finalPrice">
+                          <span class="absolute left-4 top-3.5 text-xs text-zinc-500 group-hover:text-zinc-400">TL</span>
+                        </div>
+                      </div>
+
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+
+              <!-- Submit Button -->
+              <div class="flex justify-end mt-8 pb-4">
+                <button
+                  (click)="submitFinalization()"
+                  [disabled]="isSubmitting || isFinalized"
+                  class="bg-yellow-400 hover:bg-yellow-500 text-neutral-900 font-bold py-3 px-16 shadow-lg hover:shadow-yellow-400/20 transition-all duration-200 transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-3">
+                  
+                  <!-- Submit Spinner -->
+                  <svg *ngIf="isSubmitting" class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  
+                  <span *ngIf="isFinalized">ALREADY FINALIZED</span>
+                  <span *ngIf="!isFinalized">{{ isSubmitting ? 'SUBMITTING...' : 'SUBMIT' }}</span>
+                </button>
+              </div>
+
+            </div>
+
+          </div>
+        </main>
+      </div>
+
     </div>
 
   </div>
-
-</div>
 
 </div>
