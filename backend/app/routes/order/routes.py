@@ -59,7 +59,7 @@ async def upload_file_route(
             filename=file.filename,
             content_type=file.content_type,
             user_id=str(user.id),
-            upload_date=datetime.utcnow(),
+            upload_date=datetime.now(),
             metadata=file_metadata
         )
         
@@ -77,7 +77,7 @@ async def upload_file_route(
                         filename=f"preview_{file_id}.png",
                         content_type="image/png",
                         user_id=str(user.id),
-                        upload_date=datetime.utcnow(),
+                        upload_date=datetime.now(),
                         metadata={
                             "type": "preview",
                             "original_file_id": str(file_id)  # ✅ File ID kaydediliyor
@@ -158,7 +158,7 @@ async def new_order_route(
             order_type=order_data.order_type.value if isinstance(order_data.order_type, Enum) else order_data.order_type,
             infill=order_data.order_detail.infill,
             layer_height=order_data.order_detail.layer_height,
-            quantity=1
+            quantity=order_data.quantity
         )
         
         estimations = OrderEstimations(
@@ -172,7 +172,7 @@ async def new_order_route(
         # Create initial timing entry for ORDER_RECEIVED status
         initial_timing_entry = OrderTimingEntry(
             user_id=str(user.id),
-            timestamp=datetime.utcnow(),
+            timestamp=datetime.now(),
             status=OrderStatus.ORDER_RECEIVED
         )
         
@@ -189,6 +189,7 @@ async def new_order_route(
             file_id=order_data.file_id,
             notes=order_data.notes,
             order_type=order_data.order_type,
+            quantity=order_data.quantity,          # ✅ ekle    
             order_detail=order_data.order_detail,
             order_timing_table=timing_table,
             preview_id=preview_id  # ✅ Otomatik bulunan preview_id
@@ -275,16 +276,30 @@ async def get_preview_image(
     preview_id: str,
     user: User = Depends(get_session)
 ):
-    """Get preview image from GridFS (authenticated)"""
+    """Get preview image from GridFS (authenticated - manufacturer can access unassigned orders)"""
     try:
         from fastapi.responses import StreamingResponse
         
         preview_obj_id = ObjectId(preview_id)
         preview_data = fs.get(preview_obj_id)
         
-        # Verify user has access to this preview
-        if hasattr(preview_data, 'user_id') and preview_data.user_id != str(user.id):
-            raise HTTPException(status_code=403, detail="Access denied")
+        # ✅ Role-based access control
+        if user.role == "user":
+            # User sadece kendi preview'larına erişebilir
+            if hasattr(preview_data, 'user_id') and preview_data.user_id != str(user.id):
+                raise HTTPException(status_code=403, detail="Access denied")
+        
+        elif user.role == "manufacturer":
+            # ✅ Manufacturer sadece unassigned (manufacturer = "") order'lara erişebilir
+            # Preview'ın hangi order'a ait olduğunu bul
+            order = orders.find_one({"preview_id": preview_id})
+            
+            if not order:
+                raise HTTPException(status_code=404, detail="Order not found for this preview")
+            
+            # Order'ın manufacturer'ı boş değilse ve bu manufacturer değilse erişim engelle
+            if order.get("manufacturer") and order.get("manufacturer") != user.username:
+                raise HTTPException(status_code=403, detail="This order is already assigned to another manufacturer")
         
         return StreamingResponse(
             io.BytesIO(preview_data.read()),
@@ -296,7 +311,8 @@ async def get_preview_image(
     except Exception as e:
         print(f"Preview retrieval error: {e}")
         raise HTTPException(status_code=404, detail="Preview not found")
-     
+    
+
 @app.get("/order/file/{file_id}")
 async def get_file_info(
     file_id: str,

@@ -1,3 +1,4 @@
+# routes/order/models.py
 from pydantic import BaseModel
 from enum import Enum
 from typing import Union, Dict
@@ -59,17 +60,12 @@ class OrderData(BaseModel):
     file_id: str
     notes: str
     order_type: OrderType
-    order_detail: PrintingConfig
+    quantity: int = 1  # ✅ üst seviye
+    order_detail: Union[FDMConfig, SLAConfig]  # ✅ kritik
 
-class OrderEstimations(BaseModel): 
+class OrderEstimations(BaseModel):
     estimated_weight: float
     estimated_cost: float
-
-class OrderForm(BaseModel): 
-    order_id: str
-    user_id: str
-    data: OrderData
-
 
 class OrderStatus(Enum):
     ORDER_RECEIVED = "Order Received"
@@ -97,11 +93,13 @@ class OrderFormMain(BaseModel):
     file_id: str
     notes: str
     order_type: OrderType
-    order_detail: PrintingConfig
+    quantity: int = 1  # ✅ DB’de de sakla
+    order_detail: Union[FDMConfig, SLAConfig]  # ✅ kritik (PrintingConfig olmasın)
     order_timing_table: OrderTimingTable
-    preview_id: str
+    preview_id: str | None = None
     manufacturer_id: str = ""
     is_cancelled: bool = False
+
 
 # ==================== PRICING CONFIGURATION ====================
 
