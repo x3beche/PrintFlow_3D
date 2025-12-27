@@ -2,15 +2,9 @@ import { Component } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { SidebarStateService } from 'src/app/services/sidebar-state.service';
 import { GraphComponent } from './graph/graph.component';
-import { AdoptedTaskComponent, AdoptedTaskState} from './adopted-task/adopted-task.component';
+import { AdoptedTaskComponent, AdoptedTaskState } from './adopted-task/adopted-task.component';
 import { NonAdoptedTaskComponent, NonAdoptedTaskState } from './non-adopted-task/non-adopted-task.component';
-
-interface Task {
-  id: string;
-  date: string;
-  name: string;
-  image: string;
-}
+import { OrderSummary, AdoptedOrderSummary, PoolListingsService } from './pool-listings.service';
 
 @Component({
   selector: 'app-manifacturer-pool',
@@ -21,170 +15,39 @@ export class ManifacturerPoolComponent {
   sidebarCollapsed = false;
   private subscription?: Subscription;
 
-  // ✅ Continuing Tasks
-  allContinuingTasks: AdoptedTaskState[] = [
-    {
-      id: 1,
-      name: 'Serhat Yılmaz',
-      date: new Date(2025, 9, 22, 15, 12), 
-      image: 'https://images.unsplash.com/photo-1581092160562-40aa08e78837?q=80&w=200&auto=format&fit=crop' 
-    },
-    {
-      id: 2,
-      name: 'Ayşe Demir',
-      date: '2025-10-22T16:45:00',
-      image: 'https://images.unsplash.com/photo-1581092160562-40aa08e78837?q=80&w=200&auto=format&fit=crop' 
-    },
-    {
-      id: 3,
-      name: 'Mehmet Öztürk',
-      date: new Date(),
-      image: 'https://images.unsplash.com/photo-1581092160562-40aa08e78837?q=80&w=200&auto=format&fit=crop' 
-    },
-    {
-      id: 4,
-      name: 'Zeynep Kaya',
-      date: new Date(2025, 9, 23, 9, 30),
-      image: 'https://images.unsplash.com/photo-1581092160562-40aa08e78837?q=80&w=200&auto=format&fit=crop' 
-    },
-    {
-      id: 5,
-      name: 'Ali Veli',
-      date: new Date(2025, 9, 24, 10, 15),
-      image: 'https://images.unsplash.com/photo-1581092160562-40aa08e78837?q=80&w=200&auto=format&fit=crop' 
-    },
-    {
-      id: 6,
-      name: 'Fatma Yıldız',
-      date: new Date(2025, 9, 25, 14, 20),
-      image: 'https://images.unsplash.com/photo-1581092160562-40aa08e78837?q=80&w=200&auto=format&fit=crop' 
-    },
-    {
-      id: 7,
-      name: 'Can Demir',
-      date: new Date(2025, 9, 26, 11, 45),
-      image: 'https://images.unsplash.com/photo-1581092160562-40aa08e78837?q=80&w=200&auto=format&fit=crop' 
-    },
-    {
-      id: 8,
-      name: 'Elif Şahin',
-      date: new Date(2025, 9, 27, 16, 30),
-      image: 'https://images.unsplash.com/photo-1581092160562-40aa08e78837?q=80&w=200&auto=format&fit=crop' 
-    }
-  ];
+  // ✅ Continuing Tasks - API'den gelecek
+  allContinuingTasks: AdoptedTaskState[] = [];
 
-  // ✅ Summary Stats - 4 tane
+  // ✅ Summary Stats - value = percentage, count = adet
   summaryStats = [
-    { value: 26, label: 'Non-adopted tasks' },
-    { value: 42, label: 'In Progress' },
-    { value: 18, label: 'Completed' },
-    { value: 8, label: 'Cancelled' }
+    { value: 0, count: 0, label: 'Non-adopted tasks' },
+    { value: 0, count: 0, label: 'In Progress' },
+    { value: 0, count: 0, label: 'Completed' },
+    { value: 0, count: 0, label: 'Cancelled' }
   ];
 
-  // ✅ Available Tasks
-  allAvailableTasks: NonAdoptedTaskState[] = [
-    {
-      id: 1,
-      orderId: "#8829102",
-      name: 'Serhat Yılmaz',
-      date: new Date(2025, 9, 22, 15, 12), 
-      image: 'https://images.unsplash.com/photo-1581092160562-40aa08e78837?q=80&w=200&auto=format&fit=crop' 
-    },
-    {
-      id: 2,
-      orderId: "#8829103",
-      name: 'Ayşe Demir',
-      date: '2025-10-22T16:45:00',
-      image: 'https://images.unsplash.com/photo-1581092160562-40aa08e78837?q=80&w=200&auto=format&fit=crop' 
-    },
-    {
-      id: 3,
-      orderId: "#8829104",
-      name: 'Mehmet Öztürk',
-      date: new Date(),
-      image: 'https://images.unsplash.com/photo-1581092160562-40aa08e78837?q=80&w=200&auto=format&fit=crop' 
-    },
-    {
-      id: 4,
-      orderId: "#8829105",
-      name: 'Zeynep Kaya',
-      date: new Date(2025, 9, 23, 9, 30),
-      image: 'https://images.unsplash.com/photo-1581092160562-40aa08e78837?q=80&w=200&auto=format&fit=crop' 
-    },
-    {
-      id: 5,
-      orderId: "#8829106",
-      name: 'Ali Veli',
-      date: new Date(2025, 9, 24, 10, 15),
-      image: 'https://images.unsplash.com/photo-1581092160562-40aa08e78837?q=80&w=200&auto=format&fit=crop' 
-    },
-    {
-      id: 6,
-      orderId: "#8829107",
-      name: 'Fatma Yıldız',
-      date: new Date(2025, 9, 25, 14, 20),
-      image: 'https://images.unsplash.com/photo-1581092160562-40aa08e78837?q=80&w=200&auto=format&fit=crop' 
-    },
-    {
-      id: 7,
-      orderId: "#8829108",
-      name: 'Can Demir',
-      date: new Date(2025, 9, 26, 11, 45),
-      image: 'https://images.unsplash.com/photo-1581092160562-40aa08e78837?q=80&w=200&auto=format&fit=crop' 
-    },
-    {
-      id: 8,
-      orderId: "#8829109",
-      name: 'Elif Şahin',
-      date: new Date(2025, 9, 27, 16, 30),
-      image: 'https://images.unsplash.com/photo-1581092160562-40aa08e78837?q=80&w=200&auto=format&fit=crop' 
-    },
-    {
-      id: 9,
-      orderId: "#8829110",
-      name: 'Burak Arslan',
-      date: new Date(2025, 9, 28, 13, 10),
-      image: 'https://images.unsplash.com/photo-1581092160562-40aa08e78837?q=80&w=200&auto=format&fit=crop' 
-    },
-    {
-      id: 10,
-      orderId: "#8829111",
-      name: 'Selin Öz',
-      date: new Date(2025, 9, 29, 15, 50),
-      image: 'https://images.unsplash.com/photo-1581092160562-40aa08e78837?q=80&w=200&auto=format&fit=crop' 
-    },
-    {
-      id: 11,
-      orderId: "#8829112",
-      name: 'Emre Kara',
-      date: new Date(2025, 9, 30, 12, 25),
-      image: 'https://images.unsplash.com/photo-1581092160562-40aa08e78837?q=80&w=200&auto=format&fit=crop' 
-    },
-    {
-      id: 12,
-      orderId: "#8829113",
-      name: 'Deniz Aydın',
-      date: new Date(2025, 10, 1, 10, 40),
-      image: 'https://images.unsplash.com/photo-1581092160562-40aa08e78837?q=80&w=200&auto=format&fit=crop' 
-    },
-    {
-      id: 13,
-      orderId: "#8829114",
-      name: 'Cem Yılmaz',
-      date: new Date(2025, 10, 2, 14, 15),
-      image: 'https://images.unsplash.com/photo-1581092160562-40aa08e78837?q=80&w=200&auto=format&fit=crop' 
-    }
-  ];
 
-  // ✅ Pagination state'leri - 3 kart göster
+  // ✅ Raw counts for calculation
+  private rawCounts = {
+    nonAdopted: 0,
+    inProgress: 0,
+    completed: 0,
+    cancelled: 0
+  };
+
+  // ✅ Available Tasks - API'den gelecek
+  allAvailableTasks: NonAdoptedTaskState[] = [];
+
+  // ✅ Pagination state'leri
   continuingTasksPage = 1;
-  continuingTasksPerPage = 3; // ✅ 4'ten 3'e düşürüldü
+  continuingTasksPerPage = 2;
   
   availableTasksPage = 1;
   availableTasksPerPage = 3;
 
   constructor(
     private sidebarService: SidebarStateService,
+    private poolListingsService: PoolListingsService
   ) {
     this.sidebarCollapsed = this.sidebarService.isCollapsed;
   }
@@ -193,10 +56,161 @@ export class ManifacturerPoolComponent {
     this.subscription = this.sidebarService.collapsed$.subscribe(
       collapsed => this.sidebarCollapsed = collapsed
     );
+
+    // ✅ API'den verileri çek
+    this.loadUnassignedOrders();
+    this.loadAdoptedOrders();
   }
 
   ngOnDestroy(): void {
     this.subscription?.unsubscribe();
+  }
+
+  private calculatePercentages(): void {
+    const total = this.rawCounts.nonAdopted + 
+                  this.rawCounts.inProgress + 
+                  this.rawCounts.completed + 
+                  this.rawCounts.cancelled;
+    
+    if (total > 0) {
+      this.summaryStats[0].value = Math.round((this.rawCounts.nonAdopted / total) * 100);
+      this.summaryStats[0].count = this.rawCounts.nonAdopted;
+      
+      this.summaryStats[1].value = Math.round((this.rawCounts.inProgress / total) * 100);
+      this.summaryStats[1].count = this.rawCounts.inProgress;
+      
+      this.summaryStats[2].value = Math.round((this.rawCounts.completed / total) * 100);
+      this.summaryStats[2].count = this.rawCounts.completed;
+      
+      this.summaryStats[3].value = Math.round((this.rawCounts.cancelled / total) * 100);
+      this.summaryStats[3].count = this.rawCounts.cancelled;
+    } else {
+      this.summaryStats.forEach(stat => {
+        stat.value = 0;
+        stat.count = 0;
+      });
+    }
+
+    console.log('📊 Updated Summary Stats (Percentages & Counts):', this.summaryStats);
+    console.log('📊 Raw Counts:', this.rawCounts);
+  }
+
+
+  /**
+   * ✅ Load unassigned orders from API
+   */
+  loadUnassignedOrders(): void {
+    this.poolListingsService.getUnassignedOrders().subscribe({
+      next: (response) => {
+        console.log('✅ Unassigned Orders Response:', response);
+        
+        // ✅ API verisini NonAdoptedTaskState formatına çevir
+        this.allAvailableTasks = response.orders.map((order: OrderSummary, index: number) => ({
+          id: index + 1,
+          orderId: order.order_id,
+          name: order.customer_name,
+          date: order.order_received_date ? new Date(order.order_received_date) : new Date(),
+          image: order.preview_id 
+        }));
+
+        console.log('📦 Transformed Available Tasks:', this.allAvailableTasks);
+
+        // ✅ Raw count'u güncelle
+        this.rawCounts.nonAdopted = response.count;
+        
+        // ✅ Percentage'ları yeniden hesapla
+        this.calculatePercentages();
+      },
+      error: (err) => {
+        console.error('❌ Error fetching unassigned orders:', err);
+      }
+    });
+  }
+
+  /**
+   * ✅ Load adopted orders from API
+   */
+  loadAdoptedOrders(): void {
+    this.poolListingsService.getAdoptedOrders().subscribe({
+      next: (response) => {
+        console.log('✅ Adopted Orders Response:', response);
+        
+        // ✅ API verisini AdoptedTaskState formatına çevir ve status'a göre ayır
+        let inProgressCount = 0;
+        let completedCount = 0;
+        
+        this.allContinuingTasks = response.orders.map((order: AdoptedOrderSummary, index: number) => {
+          const status = order.current_status;
+          
+          // ✅ Status'a göre sayaçları güncelle
+          if (status === 'Ready to Take') {
+            completedCount++;
+          } else if (
+            status === 'Assigned to Manufacturer' || 
+            status === 'Started Manufacturing' || 
+            status === 'Produced'
+          ) {
+            inProgressCount++;
+          }
+          
+          return {
+            id: index + 1,
+            orderId: order.order_id,
+            name: order.customer_name,
+            date: order.assigned_date ? new Date(order.assigned_date) : new Date(),
+            image: order.preview_id,
+            currentStatus: status
+          };
+        });
+
+        console.log('📦 Transformed Adopted Tasks:', this.allContinuingTasks);
+        console.log('📊 In Progress:', inProgressCount, 'Completed:', completedCount);
+
+        // ✅ Raw counts'u güncelle
+        this.rawCounts.inProgress = inProgressCount;
+        this.rawCounts.completed = completedCount;
+        
+        // ✅ Percentage'ları yeniden hesapla
+        this.calculatePercentages();
+      },
+      error: (err) => {
+        console.error('❌ Error fetching adopted orders:', err);
+      }
+    });
+  }
+
+  /**
+   * ✅ Handle order rejection - Remove from list
+   */
+  onOrderRejected(orderId: string): void {
+    console.log('🗑️ Order rejected, removing from list:', orderId);
+    
+    // Remove from allAvailableTasks
+    this.allAvailableTasks = this.allAvailableTasks.filter(task => task.orderId !== orderId);
+    
+    // Update raw count
+    this.rawCounts.nonAdopted = this.allAvailableTasks.length;
+    
+    // ✅ Percentage'ları yeniden hesapla
+    this.calculatePercentages();
+    
+    // If current page is empty after removal, go to previous page
+    if (this.availableTasks.length === 0 && this.availableTasksPage > 1) {
+      this.availableTasksPage--;
+    }
+    
+    console.log('📊 Remaining tasks:', this.allAvailableTasks.length);
+  }
+
+  /**
+   * ✅ Handle order adoption - Refresh both lists
+   */
+  onOrderAdopted(orderId: string): void {
+    console.log('✅ Order adopted, refreshing lists:', orderId);
+    
+    // Refresh both lists
+    this.loadUnassignedOrders();
+    this.loadAdoptedOrders();
   }
 
   // ✅ Continuing Tasks Pagination
