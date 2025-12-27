@@ -92,7 +92,7 @@
               <!-- Order Number -->
               <div>
                 <p class="font-inter text-xs text-neutral-500 mb-1">Order Number</p>
-                <p class="font-inter text-lg font-bold text-white">{{ order.order_number }}</p>
+                <p class="font-inter text-lg font-bold text-white">{{ order.order_number | uppercase}}</p>
               </div>
 
               <!-- Status Label -->
@@ -173,109 +173,343 @@
   </div>
 </div>
 
+<!-- Track Order Modal - Updated Layout with Dynamic 3rd Column -->
 
-<!-- Track Order Modal - Compact Version -->
 <div *ngIf="isModalOpen" 
      class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm font-inter"
      (click)="closeModal()">
   
-  <div class="bg-neutral-900 border border-zinc-700 shadow-2xl w-full max-w-4xl max-h-[85vh] overflow-y-auto m-4"
+  <!-- Dynamic Modal Width: Wider when image exists -->
+  <div class="bg-neutral-900 border border-zinc-700 shadow-2xl w-full max-h-[95vh] overflow-hidden m-4 flex flex-col transition-all duration-300"
+       [ngClass]="productImageUrl ? 'max-w-7xl' : 'max-w-5xl'"
        (click)="$event.stopPropagation()">
     
-    <!-- Modal Header - Reduced Padding -->
-    <div class="sticky top-0 bg-neutral-900 border-b border-zinc-700 p-4 flex items-center justify-between z-10">
+    <!-- Modal Header - SOLID BACKGROUND (No transparency) -->
+    <div class="flex-shrink-0 bg-neutral-900 border-b border-zinc-700 p-4 flex items-center justify-between z-20">
       <div>
         <h2 class="font-inter text-xl font-semibold text-white">Order Tracking</h2>
-        <p class="font-inter text-xs text-neutral-400 mt-0.5" *ngIf="selectedOrderDetail">
-          {{ selectedOrderDetail.order_number }}
-          <span *ngIf="selectedOrderDetail.is_cancelled" class="ml-2 text-red-500 font-semibold">(Cancelled)</span>
-        </p>
+        <div class="flex items-center gap-3 mt-1" *ngIf="selectedOrderDetail">
+          <p class="font-inter text-sm text-neutral-400">{{ selectedOrderDetail.order_number }}</p>
+          <span class="px-2 py-0.5 text-xs font-semibold rounded"
+                [ngClass]="{
+                  'bg-red-500/20 text-red-400': selectedOrderDetail.is_cancelled,
+                  'bg-green-500/20 text-green-400': selectedOrderDetail.is_completed && !selectedOrderDetail.is_cancelled,
+                  'bg-yellow-500/20 text-yellow-400': !selectedOrderDetail.is_completed && !selectedOrderDetail.is_cancelled
+                }">
+            {{ selectedOrderDetail.status_label }}
+          </span>
+        </div>
       </div>
       <button (click)="closeModal()" 
-              class="text-neutral-400 hover:text-white transition-colors">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              class="text-neutral-400 hover:text-white transition-colors p-1">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
         </svg>
       </button>
     </div>
 
-    <!-- Modal Body - Reduced Padding -->
-    <div class="p-5">
+    <!-- Modal Body - CUSTOM SCROLLBAR -->
+    <div class="flex-1 overflow-y-auto custom-scrollbar p-6">
       
       <!-- Loading State -->
-      <div *ngIf="isLoadingDetail" class="flex items-center justify-center py-12">
+      <div *ngIf="isLoadingDetail" class="flex items-center justify-center py-16">
         <div class="text-center">
-          <div class="relative w-10 h-10 mx-auto">
+          <div class="relative w-12 h-12 mx-auto">
             <div class="absolute inset-0 border-4 border-neutral-700 rounded-full"></div>
             <div class="absolute inset-0 border-4 border-yellow-400 rounded-full border-t-transparent animate-spin"></div>
           </div>
-          <p class="text-neutral-400 mt-3 font-inter text-sm">Loading tracking details...</p>
+          <p class="text-neutral-400 mt-4 font-inter text-sm">Loading tracking details...</p>
         </div>
       </div>
 
-      <!-- Tracking Timeline - Compact -->
-      <div *ngIf="!isLoadingDetail && trackingSteps.length > 0" class="mb-6 mt-2">
-        <div class="flex items-start justify-between relative px-2">
-          
-          <!-- Progress Line -->
-          <div class="absolute top-4 left-0 w-full h-px bg-zinc-700 -z-0"></div>
-          
-          <!-- Tracking Steps - Compact -->
-          <div *ngFor="let step of trackingSteps" 
-               class="flex flex-col items-center relative z-10 group cursor-default">
+      <!-- Content when loaded -->
+      <div *ngIf="!isLoadingDetail && selectedOrderDetail">
+
+        <!-- Tracking Timeline -->
+        <div class="mb-8 mt-2">
+          <h3 class="text-sm font-semibold text-white mb-4">Progress</h3>
+          <div class="flex items-start justify-between relative px-4">
             
-            <!-- Step Circle - Smaller -->
-            <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-base border-3 transition-all duration-300"
-                 [ngClass]="{
-                   'bg-white text-neutral-900 scale-105': step.isCompleted,
-                   'bg-neutral-800 text-neutral-500 border-neutral-900': !step.isCompleted
-                 }">
-              {{ step.number }}
-            </div>
+            <!-- Progress Line -->
+            <div class="absolute top-5 left-0 w-full h-0.5 bg-zinc-700 -z-0"></div>
             
-            <!-- Step Info - Compact -->
-            <div class="mt-2 text-center">
-              <div class="text-xs font-semibold transition-colors"
+            <!-- Tracking Steps -->
+            <div *ngFor="let step of trackingSteps" 
+                 class="flex flex-col items-center relative z-10">
+              
+              <!-- Step Circle -->
+              <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-base border-4 transition-all duration-300"
                    [ngClass]="{
-                     'text-white': step.isCompleted,
-                     'text-neutral-400': !step.isCompleted
+                     'bg-white text-neutral-900 border-neutral-900 scale-110': step.isCompleted,
+                     'bg-yellow-400 text-neutral-900 border-neutral-900 scale-110 animate-pulse': step.isCurrent,
+                     'bg-neutral-800 text-neutral-500 border-neutral-700': !step.isCompleted && !step.isCurrent,
+                     'bg-red-500/20 border-red-500 text-red-400': step.status === 'cancelled'
                    }">
-                {{ step.title }}
+                <svg *ngIf="step.isCompleted && step.status !== 'cancelled'" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                </svg>
+                <span *ngIf="!step.isCompleted || step.status === 'cancelled'">{{ step.number }}</span>
               </div>
-              <div *ngIf="step.date && step.date !== '-'" class="text-[10px] text-neutral-500 mt-0.5">
-                {{ step.date }}
-              </div>
-              <div *ngIf="!step.date || step.date === '-'" class="text-[10px] mt-0.5 h-3">
-                &nbsp;
+              
+              <!-- Step Info -->
+              <div class="mt-3 text-center max-w-[100px]">
+                <div class="text-xs font-semibold"
+                     [ngClass]="{
+                       'text-white': step.isCompleted,
+                       'text-yellow-400': step.isCurrent,
+                       'text-neutral-400': !step.isCompleted && !step.isCurrent
+                     }">
+                  {{ step.title }}
+                </div>
+                <div *ngIf="step.date && step.date !== '-'" class="text-[10px] text-neutral-500 mt-1">
+                  {{ step.date }}
+                </div>
               </div>
             </div>
+
+          </div>
+        </div>
+
+        <!-- Info Grid - DYNAMIC 2 OR 3 COLUMNS -->
+        <div class="grid grid-cols-1 gap-6"
+             [ngClass]="productImageUrl ? 'lg:grid-cols-3' : 'lg:grid-cols-2'">
+
+          <!-- ==================== COLUMN 1: ORDER DETAILS ==================== -->
+          <div class="space-y-4">
+
+            <!-- Order Info Card -->
+            <div class="bg-neutral-800 border border-zinc-700 p-4">
+              <h3 class="text-sm font-semibold text-white mb-3 flex items-center gap-2">
+                <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                Order Information
+              </h3>
+              <div class="grid grid-cols-2 gap-3 text-sm">
+                <div>
+                  <p class="text-neutral-500 text-xs">Order ID</p>
+                  <p class="text-white font-mono text-xs">{{ selectedOrderDetail.order_id | slice:0:8 | uppercase }}...</p>
+                </div>
+                <div>
+                  <p class="text-neutral-500 text-xs">Order Type</p>
+                  <p class="text-white font-semibold">{{ selectedOrderDetail.order_type }}</p>
+                </div>
+                <div>
+                  <p class="text-neutral-500 text-xs">Created</p>
+                  <p class="text-white text-xs">{{ formatFullDate(selectedOrderDetail.created_at) }}</p>
+                </div>
+                <div>
+                  <p class="text-neutral-500 text-xs">Last Updated</p>
+                  <p class="text-white text-xs">{{ formatFullDate(selectedOrderDetail.last_updated) }}</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Production Specs Card -->
+            <div class="bg-neutral-800 border border-zinc-700 p-4">
+              <h3 class="text-sm font-semibold text-white mb-3 flex items-center gap-2">
+                <svg class="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path>
+                </svg>
+                Production Specifications
+              </h3>
+              <div class="grid grid-cols-3 gap-3 text-sm">
+                <div>
+                  <p class="text-neutral-500 text-xs">Material</p>
+                  <p class="text-white font-semibold">{{ selectedOrderDetail.specs.material }}</p>
+                </div>
+                <div>
+                  <p class="text-neutral-500 text-xs">Brand</p>
+                  <p class="text-white">{{ selectedOrderDetail.specs.brand }}</p>
+                </div>
+                <div>
+                  <p class="text-neutral-500 text-xs">Color</p>
+                  <p class="text-white">{{ selectedOrderDetail.specs.color }}</p>
+                </div>
+                <div>
+                  <p class="text-neutral-500 text-xs">Layer Height</p>
+                  <p class="text-white font-mono">{{ selectedOrderDetail.specs.layer_height }}mm</p>
+                </div>
+                <div>
+                  <p class="text-neutral-500 text-xs">Infill</p>
+                  <p class="text-white font-mono">{{ selectedOrderDetail.specs.infill }}%</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Estimations Card -->
+            <div class="bg-neutral-800 border border-zinc-700 p-4">
+              <h3 class="text-sm font-semibold text-white mb-3 flex items-center gap-2">
+                <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                </svg>
+                Estimations
+              </h3>
+              <div class="grid grid-cols-2 gap-4">
+                <div class="bg-neutral-900 p-3 rounded border border-zinc-700">
+                  <p class="text-neutral-500 text-xs">Estimated Weight</p>
+                  <p class="text-white font-bold text-lg">{{ selectedOrderDetail.estimations.estimated_weight | number:'1.2-2' }} g</p>
+                </div>
+                <div class="bg-neutral-900 p-3 rounded border border-zinc-700">
+                  <p class="text-neutral-500 text-xs">Estimated Cost</p>
+                  <p class="text-cyan-400 font-bold text-lg">₺{{ selectedOrderDetail.estimations.estimated_cost | number:'1.2-2' }}</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Customer Notes -->
+            <div class="bg-neutral-800 border border-zinc-700 p-4" *ngIf="selectedOrderDetail.notes">
+              <h3 class="text-sm font-semibold text-white mb-2 flex items-center gap-2">
+                <svg class="w-4 h-4 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path>
+                </svg>
+                Your Notes
+              </h3>
+              <p class="text-neutral-300 text-sm italic bg-neutral-900 p-3 rounded border border-zinc-700">
+                "{{ selectedOrderDetail.notes }}"
+              </p>
+            </div>
+
+          </div>
+
+          <!-- ==================== COLUMN 2: MANUFACTURER & PRICING ==================== -->
+          <div class="space-y-4">
+
+            <!-- Manufacturer Card -->
+            <div class="bg-neutral-800 border border-zinc-700 p-4">
+              <h3 class="text-sm font-semibold text-white mb-3 flex items-center gap-2">
+                <svg class="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                </svg>
+                Manufacturer
+              </h3>
+              
+              <!-- If manufacturer assigned -->
+              <div *ngIf="selectedOrderDetail.manufacturer.manufacturer_id" class="flex items-center gap-3">
+                <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-green-700 rounded-full flex items-center justify-center text-white font-bold text-lg">
+                  {{ selectedOrderDetail.manufacturer.name?.charAt(0) || 'M' }}
+                </div>
+                <div class="flex-1">
+                  <p class="text-white font-semibold">{{ selectedOrderDetail.manufacturer.name || 'N/A' }}</p>
+                  <p class="text-neutral-400 text-sm">{{ selectedOrderDetail.manufacturer.company || 'N/A' }}</p>
+                </div>
+              </div>
+              
+              <!-- Manufacturer phone -->
+              <div class="mt-3 pt-3 border-t border-zinc-700 grid grid-cols-1 gap-2" *ngIf="selectedOrderDetail.manufacturer.manufacturer_id">
+                <div *ngIf="selectedOrderDetail.manufacturer.phone">
+                  <p class="text-neutral-500 text-xs">Phone</p>
+                  <p class="text-white text-sm font-mono">{{ selectedOrderDetail.manufacturer.phone }}</p>
+                </div>
+              </div>
+
+              <!-- If no manufacturer yet -->
+              <div *ngIf="!selectedOrderDetail.manufacturer.manufacturer_id" class="flex items-center gap-3 text-neutral-500">
+                <div class="w-12 h-12 bg-neutral-700 rounded-full flex items-center justify-center">
+                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </svg>
+                </div>
+                <div>
+                  <p class="text-neutral-400 text-sm">Awaiting assignment...</p>
+                  <p class="text-neutral-500 text-xs">A manufacturer will be assigned soon</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Pricing Card -->
+            <div class="bg-neutral-800 border border-zinc-700 p-4">
+              <h3 class="text-sm font-semibold text-white mb-3 flex items-center gap-2">
+                <svg class="w-4 h-4 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                Finalization
+              </h3>
+              
+              <!-- Estimation vs Final comparison -->
+              <div class="space-y-3">
+                
+
+
+                <!-- Final Price (if finalized) -->
+                <div *ngIf="selectedOrderDetail.finalization?.final_price" 
+                     class="bg-green-500/10 p-3 rounded border border-green-500/30">
+                  <div class="flex justify-between items-center">
+                    <div>
+                      <p class="text-green-400 text-xs font-semibold">Final Price</p>
+                      <p class="text-neutral-500 text-[10px]">Actual filament: {{ selectedOrderDetail.finalization.actual_filament_usage || 0 }}g</p>
+                    </div>
+                    <p class="text-green-400 font-bold text-xl">₺{{ selectedOrderDetail.finalization.final_price | number:'1.2-2' }}</p>
+                  </div>
+                </div>
+
+                <!-- Not finalized yet -->
+                <div *ngIf="!selectedOrderDetail.finalization?.final_price" 
+                     class="bg-neutral-900 p-3 rounded border border-dashed border-zinc-600 text-center">
+                  <p class="text-neutral-500 text-xs">Final price will be determined after production</p>
+                </div>
+
+              </div>
+
+              <!-- Delivery Address (if exists) -->
+              <div class="mt-4 pt-3 border-t border-zinc-700" *ngIf="selectedOrderDetail.finalization?.delivery_address">
+                <p class="text-neutral-500 text-xs mb-1">Delivery Address</p>
+                <p class="text-white text-sm bg-neutral-900 p-2 rounded border border-zinc-700">
+                  {{ selectedOrderDetail.finalization.delivery_address }}
+                </p>
+              </div>
+
+              <!-- Manufacturer Notes (if exists) -->
+              <div class="mt-3" *ngIf="selectedOrderDetail.finalization?.manufacturer_notes">
+                <p class="text-neutral-500 text-xs mb-1">Manufacturer Notes</p>
+                <p class="text-neutral-300 text-sm bg-neutral-900 p-2 rounded border border-zinc-700 italic">
+                  "{{ selectedOrderDetail.finalization.manufacturer_notes }}"
+                </p>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- ==================== COLUMN 3: PRODUCT IMAGE (Only if image exists) ==================== -->
+          <div class="space-y-4" *ngIf="productImageUrl">
+
+            <!-- Product Image Card - FULL HEIGHT -->
+            <div class="bg-neutral-800 border border-zinc-700 p-4 h-full flex flex-col">
+              <h3 class="text-sm font-semibold text-white mb-3 flex items-center gap-2 flex-shrink-0">
+                <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                </svg>
+                Product Image
+              </h3>
+              
+              <!-- Loading -->
+              <div *ngIf="isLoadingProductImage" class="flex-1 flex items-center justify-center bg-neutral-900 rounded border border-zinc-700">
+                <div class="text-center">
+                  <div class="animate-spin h-8 w-8 border-4 border-neutral-600 border-t-yellow-400 rounded-full mx-auto"></div>
+                  <p class="text-neutral-500 text-xs mt-2">Loading image...</p>
+                </div>
+              </div>
+
+              <!-- Image Available - LARGE VIEW -->
+              <div *ngIf="!isLoadingProductImage && productImageUrl" class="flex-1 relative">
+                <img [src]="productImageUrl" alt="Product Image" 
+                     class="w-full h-full object-contain bg-neutral-900 rounded border border-zinc-700" />
+              </div>
+
+            </div>
+
           </div>
 
         </div>
-      </div>
 
-      <!-- Additional Info - Compact -->
-      <div *ngIf="!isLoadingDetail && selectedOrderDetail" 
-           class="bg-neutral-800 border border-zinc-700 p-4 mt-4">
-        <h3 class="font-inter text-base font-semibold text-white mb-3">Order Summary</h3>
-        <div class="grid grid-cols-2 gap-3 text-sm">
-          <div>
-            <p class="text-neutral-400 text-xs">Order ID</p>
-            <p class="text-white font-semibold text-sm">{{ selectedOrderDetail.order_id }}</p>
-          </div>
-          <div>
-            <p class="text-neutral-400 text-xs">Current Status</p>
-            <p class="text-white font-semibold text-sm">{{ trackingSteps[selectedOrderDetail.current_step - 1]?.title }}</p>
-          </div>
-        </div>
       </div>
 
     </div>
 
-    <!-- Modal Footer - Reduced Padding -->
-    <div class="sticky bottom-0 bg-neutral-900 border-t border-zinc-700 p-4 flex justify-end">
+    <!-- Modal Footer - SOLID BACKGROUND -->
+    <div class="flex-shrink-0 bg-neutral-900 border-t border-zinc-700 p-4 flex justify-end gap-3">
       <button (click)="closeModal()" 
-              class="px-6 py-2 bg-yellow-400 hover:bg-yellow-500 text-black font-inter font-semibold text-sm transition-colors duration-150">
+              class="px-6 py-2 bg-yellow-400 text-black font-inter font-semibold text-sm transition-colors duration-150">
         Close
       </button>
     </div>
@@ -284,62 +518,44 @@
 </div>
 
 
-<!-- Cancel Order Confirmation Modal - Compact Version -->
+<!-- Cancel Order Confirmation Modal -->
 <div *ngIf="isCancelModalOpen" 
      class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm font-inter"
      (click)="closeCancelModal()">
   
-  <div class="bg-neutral-900 border border-zinc-700 shadow-2xl w-full max-w-md m-4"
+  <div class="bg-neutral-900 border border-zinc-700 shadow-2xl w-full max-w-md m-4 p-6"
        (click)="$event.stopPropagation()">
     
-    <!-- Modal Header - Compact -->
-    <div class="bg-neutral-900 border-b border-zinc-700 p-4">
-      <div class="flex items-center gap-2.5">
-        <div class="w-10 h-10 rounded-full bg-red-600/20 flex items-center justify-center flex-shrink-0">
-          <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
-          </svg>
-        </div>
-        <div>
-          <h2 class="font-inter text-lg font-semibold text-white">Cancel Order</h2>
-          <p class="font-inter text-xs text-neutral-400 mt-0.5" *ngIf="orderToCancel">
-            {{ orderToCancel.order_number }}
-          </p>
-        </div>
+    <div class="text-center">
+      <div class="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+        <svg class="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+        </svg>
       </div>
-    </div>
-
-    <!-- Modal Body - Compact -->
-    <div class="p-4">
-      <p class="text-neutral-300 font-inter text-sm leading-relaxed">
-        Are you sure you want to cancel this order? This action cannot be undone.
+      
+      <h3 class="text-xl font-semibold text-white mb-2">Cancel Order?</h3>
+      <p class="text-neutral-400 text-sm mb-6">
+        Are you sure you want to cancel order <span class="text-white font-semibold">{{ orderToCancel?.order_number }}</span>? 
+        This action cannot be undone.
       </p>
       
-      <div class="mt-3 bg-neutral-800 border border-zinc-700 p-3 rounded">
-        <p class="text-xs text-neutral-400 mb-1.5">Order Details:</p>
-        <div class="space-y-0.5" *ngIf="orderToCancel">
-          <p class="text-xs text-white"><span class="text-neutral-400">Order:</span> {{ orderToCancel.order_number }}</p>
-          <p class="text-xs text-white"><span class="text-neutral-400">Status:</span> {{ orderToCancel.status }}</p>
-          <p class="text-xs text-white"><span class="text-neutral-400">Manufacturer:</span> {{ orderToCancel.manufacturer }}</p>
-        </div>
+      <div class="flex gap-3">
+        <button (click)="closeCancelModal()" 
+                [disabled]="isCancelling"
+                class="flex-1 px-4 py-2 bg-neutral-700 text-white font-semibold text-sm transition-colors disabled:opacity-50">
+          Keep Order
+        </button>
+        <button (click)="confirmCancelOrder()" 
+                [disabled]="isCancelling"
+                class="flex-1 px-4 py-2 bg-red-600 text-white font-semibold text-sm transition-colors disabled:opacity-50 flex items-center justify-center gap-2">
+          <svg *ngIf="isCancelling" class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          {{ isCancelling ? 'Cancelling...' : 'Yes, Cancel' }}
+        </button>
       </div>
     </div>
-
-    <!-- Modal Footer - Compact -->
-    <div class="bg-neutral-900 border-t border-zinc-700 p-4 flex gap-2 justify-end">
-      <button (click)="closeCancelModal()" 
-              [disabled]="isCancelling"
-              class="px-5 py-2 bg-neutral-800 border border-zinc-700 hover:bg-neutral-700 hover:border-zinc-600 text-white font-inter font-semibold text-sm transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed">
-        No, Keep Order
-      </button>
-      <button (click)="confirmCancelOrder()" 
-              [disabled]="isCancelling"
-              class="px-5 py-2 bg-red-600 hover:bg-red-700 text-white font-inter font-semibold text-sm transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
-        <span *ngIf="isCancelling" class="inline-block w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-        {{ isCancelling ? 'Cancelling...' : 'Yes, Cancel Order' }}
-      </button>
-    </div>
-
+    
   </div>
 </div>

@@ -1,4 +1,4 @@
-import { OrderListItem, OrderListService, OrderDetail } from './order-list.service';
+import { OrderListItem, OrderListService, OrderDetail, StepInfo } from './order-list.service';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { SidebarStateService } from 'src/app/services/sidebar-state.service';
@@ -17,6 +17,7 @@ interface TrackingStep {
   date: string;
   isCompleted: boolean;
   isCurrent: boolean;
+  status: string;
 }
 
 @Component({
@@ -28,7 +29,7 @@ export class OrderListComponent implements OnInit, OnDestroy {
   sidebarCollapsed = false;
   private subscription?: Subscription;
   private ordersSubscription?: Subscription;
-
+  
   // Pagination
   currentPage: number = 1;
   itemsPerPage: number = 5;
@@ -51,6 +52,10 @@ export class OrderListComponent implements OnInit, OnDestroy {
   selectedOrderDetail: OrderDetail | null = null;
   trackingSteps: TrackingStep[] = [];
   isLoadingDetail: boolean = false;
+
+  // Product Image
+  productImageUrl: string | SafeUrl | null = null;
+  isLoadingProductImage: boolean = false;
 
   // Cancel Modal state
   isCancelModalOpen: boolean = false;
@@ -169,12 +174,18 @@ export class OrderListComponent implements OnInit, OnDestroy {
   trackOrder(order: OrderDisplay): void {
     this.isLoadingDetail = true;
     this.isModalOpen = true;
+    this.productImageUrl = null;
 
     this.orderListService.getOrderDetail(order.order_id).subscribe({
       next: (detail) => {
         this.selectedOrderDetail = detail;
         this.buildTrackingSteps(detail);
         this.isLoadingDetail = false;
+
+        // Load product image if completed
+        if (detail.is_completed && detail.files.product_file_id) {
+          this.loadProductImage(order.order_id);
+        }
       },
       error: (error) => {
         console.error('Error loading order detail:', error);
@@ -186,35 +197,57 @@ export class OrderListComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Build tracking steps from order detail
+   * Load product image for completed orders
+   */
+  loadProductImage(orderId: string): void {
+    this.isLoadingProductImage = true;
+
+    this.orderListService.getProductImage(orderId).subscribe({
+      next: (blob) => {
+        const url = URL.createObjectURL(blob);
+        this.productImageUrl = this.sanitizer.bypassSecurityTrustUrl(url);
+        this.isLoadingProductImage = false;
+      },
+      error: (error) => {
+        console.warn('Could not load product image:', error);
+        this.isLoadingProductImage = false;
+      }
+    });
+  }
+
+  /**
+   * Build tracking steps from order detail - using new steps array
    */
   buildTrackingSteps(detail: OrderDetail): void {
-    const stepMapping = [
-      { key: 'order_received', title: 'Order Received' },
-      { key: 'assigned_to_manufacturer', title: 'Assigned to Manufacturer' },
-      { key: 'started_manufacturing', title: 'Started Manufacturing' },
-      { key: 'produced', title: 'Produced' },
-      { key: 'ready_to_take', title: 'Ready to Take' }
-    ];
-
-    this.trackingSteps = stepMapping.map((step, index) => {
-      const stepNumber = index + 1;
-      const timingEntry = detail.order_timing_table[step.key as keyof typeof detail.order_timing_table];
-      
-      return {
-        number: stepNumber,
-        title: step.title,
-        date: timingEntry ? this.formatDate(timingEntry.timestamp) : '-',
-        isCompleted: stepNumber <= detail.current_step,
-        isCurrent: stepNumber === detail.current_step
-      };
-    });
+    // Use steps from API directly
+    this.trackingSteps = detail.steps.map(step => ({
+      number: step.id,
+      title: step.label,
+      date: step.timestamp ? this.formatDate(step.timestamp) : '-',
+      isCompleted: step.completed,
+      isCurrent: step.status === 'current',
+      status: step.status
+    }));
   }
 
   /**
    * Format date for display
    */
   formatDate(dateString: string): string {
+    const date = new Date(dateString);
+    return date.toLocaleString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  }
+
+  /**
+   * Format full date for display
+   */
+  formatFullDate(dateString: string | null): string {
+    if (!dateString) return '-';
     const date = new Date(dateString);
     return date.toLocaleString('en-US', {
       month: 'long',
@@ -232,19 +265,23 @@ export class OrderListComponent implements OnInit, OnDestroy {
     this.isModalOpen = false;
     this.selectedOrderDetail = null;
     this.trackingSteps = [];
+    
+    // Revoke product image URL
+    if (this.productImageUrl && typeof this.productImageUrl === 'string' && this.productImageUrl.startsWith('blob:')) {
+      URL.revokeObjectURL(this.productImageUrl);
+    }
+    this.productImageUrl = null;
   }
 
   /**
    * Open cancel confirmation modal
    */
   cancelOrder(order: OrderDisplay): void {
-    // Check if already cancelled
     if (order.is_cancelled) {
       alert('This order is already cancelled.');
       return;
     }
 
-    // Check if order is ready to take
     if (order.current_step === 5) {
       alert('Cannot cancel order that is already ready to take.');
       return;
@@ -273,19 +310,12 @@ export class OrderListComponent implements OnInit, OnDestroy {
     this.orderListService.cancelOrder(this.orderToCancel.order_id).subscribe({
       next: (response) => {
         if (response.success) {
-          // Update local order state
           const orderIndex = this.allOrders.findIndex(o => o.order_id === this.orderToCancel!.order_id);
           if (orderIndex !== -1) {
             this.allOrders[orderIndex].is_cancelled = true;
           }
           
-          // Update displayed orders
           this.updateDisplayedOrders();
-
-          // Show success message
-          //alert('Order cancelled successfully!');
-          
-          // Close modal
           this.closeCancelModal();
         } else {
           alert(response.message || 'Failed to cancel order');
@@ -301,6 +331,16 @@ export class OrderListComponent implements OnInit, OnDestroy {
     });
   }
 
+  /**
+   * Get status color class
+   */
+  getStatusColorClass(status: string): string {
+    if (status === 'cancelled') return 'text-red-500';
+    if (status === 'completed') return 'text-green-500';
+    if (status === 'current') return 'text-yellow-400';
+    return 'text-neutral-500';
+  }
+
   ngOnDestroy(): void {
     this.subscription?.unsubscribe();
     this.ordersSubscription?.unsubscribe();
@@ -310,5 +350,9 @@ export class OrderListComponent implements OnInit, OnDestroy {
         URL.revokeObjectURL(order.imageUrl);
       }
     });
+
+    if (this.productImageUrl && typeof this.productImageUrl === 'string' && this.productImageUrl.startsWith('blob:')) {
+      URL.revokeObjectURL(this.productImageUrl);
+    }
   }
 }
