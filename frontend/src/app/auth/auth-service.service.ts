@@ -85,7 +85,7 @@ export class AuthService {
       this.router.navigate(['/manufacturer']);
     } else {
       // Default fallback
-      this.router.navigate(['/']);
+      this.router.navigate(['/admin/users']);
     }
   }
 

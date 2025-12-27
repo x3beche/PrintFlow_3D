@@ -40,13 +40,13 @@ const routes: Routes = [
     path: "order/new",
     component: OrderComponent,
     canActivate: [AuthGuard],
-    data: { roles: ['user'] }
+    data: { roles: ['user','admin'] }
   },
   {
     path: "order/list",
     component: OrderListComponent,
     canActivate: [AuthGuard],
-    data: { roles: ['user'] }
+    data: { roles: ['user', 'admin'] }
   },
   
   // MANUFACTURER ROUTES

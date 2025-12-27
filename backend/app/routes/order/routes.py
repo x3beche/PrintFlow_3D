@@ -104,7 +104,6 @@ async def upload_file_route(
         print(f"File upload error: {e}")
         raise HTTPException(status_code=500, detail=f"File upload failed: {str(e)}")
 
-
 @app.post("/order/new")
 async def new_order_route(
 

@@ -22,7 +22,7 @@ class PermissionsService {
       this.router.navigate(['/login']);
       return false;
     }
-
+    console.log(status);
     // Role-based route protection
     const expectedRoles = next.data['roles'] as string[];
     if (expectedRoles) {
@@ -40,10 +40,12 @@ class PermissionsService {
   private redirectBasedOnRole(): void {
     const userRole = this.authService.getUserRole();
     if (userRole === 'user') {
-      this.router.navigate(['/order']);
+      this.router.navigate(['/order/new']);
     } else if (userRole === 'manufacturer') {
-      this.router.navigate(['/manufacturer']);
-    } else {
+      this.router.navigate(['/manufacturer/order/pool']);
+    } else if (userRole === 'admin') {
+      this.router.navigate(['/profile/settings']);
+    }else {
       this.router.navigate(['/']);
     }
   }
@@ -55,6 +57,22 @@ export const AuthGuard: CanActivateFn = (
 ): boolean => {
   return inject(PermissionsService).canActivate(next, state);
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 @Injectable({
   providedIn: 'root',
@@ -81,7 +99,9 @@ class ReversePermissionsService {
       this.router.navigate(['/order/new']);
     } else if (userRole === 'manufacturer') {
       this.router.navigate(['/manufacturer/order/pool']);
-    } else {
+    } else if (userRole === 'admin') {
+      this.router.navigate(['/profile/settings']);
+    }else {
       this.router.navigate(['/']);
     }
   }
