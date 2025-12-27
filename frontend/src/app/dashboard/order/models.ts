@@ -65,6 +65,7 @@ export interface OrderData {
   notes: string;
   order_type: OrderType;
   order_detail: PrintingConfig;
+  quantity: number
 }
 
 export interface OrderForm {
