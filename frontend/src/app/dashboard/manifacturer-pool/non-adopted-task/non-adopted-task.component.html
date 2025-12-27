@@ -1,34 +1,51 @@
-<div class="bg-neutral-800 border border-zinc-700 w-full h-full hover:border-zinc-600 transition-all duration-150 group flex items-stretch font-inter overflow-hidden">
+<div class="bg-neutral-800 border border-zinc-700 w-full hover:border-zinc-600 transition-all duration-150 group flex items-stretch font-inter overflow-hidden">
   
-  <!-- ✅ Responsive grid - mobilde stack, desktop'ta horizontal -->
-  <div class="grid w-full items-center"
-       [ngClass]="{
-         'grid-cols-1 gap-2 p-3': false,
-         'gap-3': true
-       }"
-       style="grid-template-columns: minmax(2.5rem, 3rem) minmax(8rem, 10rem) 1px minmax(10rem, 12rem) 1px minmax(0, 1fr) minmax(12rem, 14rem);">
+  <!-- ✅ Responsive grid - adjusted for 4:3 image -->
+  <div class="grid w-full items-center gap-3"
+       style="grid-template-columns: minmax(6rem, 8rem) minmax(8rem, 10rem) 1px minmax(10rem, 12rem) 1px minmax(0, 1fr) minmax(12rem, 14rem);">
 
-    <!-- Image -->
-    <div class="w-8 h-8 sm:w-10 sm:h-10 bg-neutral-700 border border-zinc-600 flex items-center justify-center overflow-hidden flex-shrink-0 justify-self-center">
-      <img *ngIf="imageSource" [src]="imageSource" alt="Task" class="w-full h-full object-cover">
-      <svg *ngIf="!imageSource" viewBox="0 0 24 24" fill="none" class="w-4 h-4 sm:w-5 sm:h-5 text-orange-500" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+    <!-- ✅ Image with 4:3 Aspect Ratio -->
+    <div class="relative w-full bg-neutral-800 border-r border-zinc-600 flex items-center justify-center overflow-hidden" style="aspect-ratio: 4/3;">
+      
+      <!-- Loading Spinner -->
+      <div *ngIf="isImageLoading" class="absolute inset-0 flex items-center justify-center bg-neutral-800">
+        <div class="relative w-8 h-8">
+          <div class="absolute inset-0 border-4 border-neutral-600 rounded-full"></div>
+          <div class="absolute inset-0 border-4 border-yellow-400 rounded-full border-t-transparent animate-spin"></div>
+        </div>
+      </div>
+
+      <!-- Image - Cropped to fill 4:3 -->
+      <img *ngIf="!isImageLoading && !imageLoadError && displayImageUrl" 
+           [src]="displayImageUrl" 
+           alt="Task Preview" 
+           class="w-full h-full object-cover">
+
+      <!-- Fallback Icon -->
+      <svg *ngIf="!isImageLoading && (imageLoadError || !displayImageUrl)" 
+           viewBox="0 0 24 24" 
+           fill="none" 
+           class="w-8 h-8 text-orange-500" 
+           stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" 
+              d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
       </svg>
     </div>
 
     <!-- Order Number -->
-    <div class="flex flex-col justify-center py-2 sm:py-3 min-w-0">
+    <div class="flex flex-col justify-center py-3 min-w-0">
       <span class="text-[9px] sm:text-[10px] text-neutral-400 uppercase tracking-wider font-semibold mb-0.5 font-inter">Order Number</span>
-      <span class="text-sm sm:text-base font-bold text-white font-mono whitespace-nowrap overflow-hidden text-ellipsis font-inter">
-        {{ orderId }}
+      <span class="text-sm sm:text-base font-bold text-white font-mono whitespace-nowrap overflow-hidden text-ellipsis font-inter" 
+            [title]="orderId">
+        {{ orderId | orderIdShort }}
       </span>
     </div>
 
     <!-- ✅ Vertical Line 1 -->
-    <div class="h-full w-px bg-zinc-700 hidden sm:block"></div>
+    <div class="h-full w-px bg-zinc-700"></div>
 
     <!-- Created Date -->
-    <div class="flex flex-col justify-center py-2 sm:py-3 min-w-0">
+    <div class="flex flex-col justify-center py-3 min-w-0">
       <span class="text-[9px] sm:text-[10px] text-neutral-400 uppercase tracking-wider font-semibold mb-0.5 font-inter">Created at</span>
       <span class="text-sm sm:text-base font-bold text-white font-mono whitespace-nowrap overflow-hidden text-ellipsis font-inter">
         {{ createdDate | date:'dd/MM/yyyy - HH:mm' }}
@@ -36,28 +53,32 @@
     </div>
 
     <!-- ✅ Vertical Line 2 -->
-    <div class="h-full w-px bg-zinc-700 hidden sm:block"></div>
+    <div class="h-full w-px bg-zinc-700"></div>
 
     <!-- Name -->
-    <div class="flex flex-col justify-center min-w-0 py-2 sm:py-3"> 
+    <div class="flex flex-col justify-center min-w-0 py-3"> 
       <span class="text-[9px] sm:text-[10px] text-neutral-400 uppercase tracking-wider font-semibold mb-0.5 font-inter">Name</span>
-      <span class="text-sm sm:text-base font-bold text-white truncate font-inter" title="{{ name }}">
+      <span class="text-sm sm:text-base font-bold text-white truncate font-inter" [title]="name">
         {{ name }}
       </span>
     </div>
 
     <!-- Operations -->
-    <div class="flex flex-col justify-center gap-1.5 sm:gap-2 py-2 sm:py-3 min-w-0">
+    <div class="flex flex-col justify-center gap-1.5 sm:gap-2 py-3 min-w-0 pe-3">
       
-      <button class="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-bold py-1 sm:py-1.5 text-[10px] sm:text-xs transition-colors duration-150 font-inter whitespace-nowrap">
+      <!-- ✅ Adopt Button -->
+      <button (click)="openAdoptModal()"
+              class="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-bold py-1 sm:py-1.5 text-[10px] sm:text-xs transition-colors duration-150 font-inter whitespace-nowrap">
         Adopt
       </button>
 
       <div class="flex gap-1.5 sm:gap-2">
-        <button class="flex-1 bg-teal-700 hover:bg-teal-600 text-white font-bold py-1 sm:py-1.5 px-1 sm:px-2 text-[10px] sm:text-xs transition-colors duration-150 whitespace-nowrap font-inter">
+        <button (click)="openDetailsModal()"
+                class="flex-1 bg-teal-700 hover:bg-teal-600 text-white font-bold py-1 sm:py-1.5 px-1 sm:px-2 text-[10px] sm:text-xs transition-colors duration-150 whitespace-nowrap font-inter">
           Details
         </button>
-        <button class="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-1 sm:py-1.5 px-1 sm:px-2 text-[10px] sm:text-xs transition-colors duration-150 whitespace-nowrap font-inter">
+        <button (click)="openRejectModal()"
+                class="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-1 sm:py-1.5 px-1 sm:px-2 text-[10px] sm:text-xs transition-colors duration-150 whitespace-nowrap font-inter">
           Reject
         </button>
       </div>
@@ -66,3 +87,490 @@
 
   </div>
 </div>
+
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+<!-- ORDER DETAILS MODAL (FULL HTML) -->
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+<div *ngIf="isDetailsModalOpen"
+     class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm font-inter p-4"
+     (click)="closeDetailsModal()">
+
+  <div class="bg-neutral-900 border border-zinc-700 shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto custom-scrollbar"
+       (click)="$event.stopPropagation()">
+
+    <!-- Modal Header -->
+    <div class="bg-neutral-900 border-b border-zinc-700 p-4 sticky top-0 z-10">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <div class="w-10 h-10 rounded-full bg-teal-700/20 flex items-center justify-center flex-shrink-0">
+            <svg class="w-5 h-5 text-teal-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+            </svg>
+          </div>
+          <div>
+            <h2 class="font-inter text-lg font-semibold text-white">Order Details</h2>
+            <p class="font-inter text-xs text-neutral-400 mt-0.5">
+              {{ orderId | orderIdShort }}
+            </p>
+          </div>
+        </div>
+
+        <button (click)="closeDetailsModal()"
+                class="text-neutral-400 hover:text-white transition-colors">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Modal Body -->
+    <div class="p-4">
+
+      <!-- Loading State -->
+      <div *ngIf="isLoadingDetails" class="flex flex-col items-center justify-center py-12">
+        <div class="relative w-12 h-12 mb-4">
+          <div class="absolute inset-0 border-4 border-neutral-600 rounded-full"></div>
+          <div class="absolute inset-0 border-4 border-teal-500 rounded-full border-t-transparent animate-spin"></div>
+        </div>
+        <p class="text-neutral-400 text-sm">Loading order details...</p>
+      </div>
+
+      <!-- Content -->
+      <div *ngIf="!isLoadingDetails && orderDetails" class="space-y-4">
+
+        <!-- Customer Information -->
+        <div class="bg-neutral-800 border border-zinc-700 rounded p-4">
+          <h3 class="text-sm font-semibold text-white mb-3 flex items-center gap-2">
+            <svg class="w-4 h-4 text-teal-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+            </svg>
+            Customer Information
+          </h3>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <p class="text-xs text-neutral-400 mb-1">Customer Name</p>
+              <p class="text-sm text-white font-medium">{{ customerName || 'N/A' }}</p>
+            </div>
+
+            <div>
+              <p class="text-xs text-neutral-400 mb-1">Order Date</p>
+              <p class="text-sm text-white font-medium">{{ createdDate | date:'dd/MM/yyyy - HH:mm' }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Order Meta 
+        <div class="bg-neutral-800 border border-zinc-700 rounded p-4">
+          <h3 class="text-sm font-semibold text-white mb-3 flex items-center gap-2">
+            <svg class="w-4 h-4 text-teal-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+            </svg>
+            Order Meta
+          </h3>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div class="col-span-2">
+              <p class="text-xs text-neutral-400 mb-1">Order ID</p>
+              <p class="text-sm text-white font-medium break-all">{{ orderDetails.order_id }}</p>
+            </div>
+
+            <div>
+              <p class="text-xs text-neutral-400 mb-1">Quantity (Adet)</p>
+              <p class="text-sm text-white font-medium">{{ orderDetails.quantity ?? 'N/A' }}</p>
+            </div>
+
+            <div>
+              <p class="text-xs text-neutral-400 mb-1">Order Type</p>
+              <p class="text-sm text-white font-medium">{{ orderDetails.order_type || 'N/A' }}</p>
+            </div>
+
+            <div>
+              <p class="text-xs text-neutral-400 mb-1">Preview ID</p>
+              <p class="text-sm text-white font-medium break-all">{{ orderDetails.preview_id || 'N/A' }}</p>
+            </div>
+
+            <div>
+              <p class="text-xs text-neutral-400 mb-1">File ID</p>
+              <p class="text-sm text-white font-medium break-all">{{ orderDetails.file_id || 'N/A' }}</p>
+            </div>
+
+            <div>
+              <p class="text-xs text-neutral-400 mb-1">Customer ID</p>
+              <p class="text-sm text-white font-medium break-all">{{ orderDetails.user_id || 'N/A' }}</p>
+            </div>
+
+            <div>
+              <p class="text-xs text-neutral-400 mb-1">Manufacturer ID</p>
+              <p class="text-sm text-white font-medium break-all">{{ orderDetails.manufacturer_id || 'Unassigned' }}</p>
+            </div>
+
+            <div *ngIf="orderDetails.last_updated" class="col-span-2">
+              <p class="text-xs text-neutral-400 mb-1">Last Updated</p>
+              <p class="text-sm text-white font-medium">{{ orderDetails.last_updated | date:'dd/MM/yyyy - HH:mm:ss' }}</p>
+            </div>
+          </div>
+        </div>-->
+
+        <!-- Manufacturer Information -->
+        <div *ngIf="orderDetails.manufacturer_info" class="bg-neutral-800 border border-zinc-700 rounded p-4">
+          <h3 class="text-sm font-semibold text-white mb-3 flex items-center gap-2">
+            <svg class="w-4 h-4 text-teal-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+            </svg>
+            Manufacturer Information
+          </h3>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <p class="text-xs text-neutral-400 mb-1">Name</p>
+              <p class="text-sm text-white font-medium">
+                {{ orderDetails.manufacturer_info.manufacturer_name || 'N/A' }}
+              </p>
+            </div>
+
+            <div>
+              <p class="text-xs text-neutral-400 mb-1">Email</p>
+              <p class="text-sm text-white font-medium">
+                {{ orderDetails.manufacturer_info.manufacturer_email || 'N/A' }}
+              </p>
+            </div>
+
+            <div class="col-span-2">
+              <p class="text-xs text-neutral-400 mb-1">Manufacturer ID</p>
+              <p class="text-sm text-white font-medium break-all">
+                {{ orderDetails.manufacturer_info.manufacturer_id || 'N/A' }}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Printing Configuration -->
+        <div class="bg-neutral-800 border border-zinc-700 rounded p-4">
+          <h3 class="text-sm font-semibold text-white mb-3 flex items-center gap-2">
+            <svg class="w-4 h-4 text-teal-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+            </svg>
+            Printing Configuration
+          </h3>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <p class="text-xs text-neutral-400 mb-1">Material</p>
+              <p class="text-sm text-white font-medium">{{ orderDetails.order_detail.material || 'N/A' }}</p>
+            </div>
+
+            <div>
+              <p class="text-xs text-neutral-400 mb-1">Brand</p>
+              <p class="text-sm text-white font-medium">{{ orderDetails.order_detail.brand || 'N/A' }}</p>
+            </div>
+
+            <div>
+              <p class="text-xs text-neutral-400 mb-1">Color</p>
+              <p class="text-sm text-white font-medium">{{ orderDetails.order_detail.color || 'N/A' }}</p>
+            </div>
+
+            <div>
+              <p class="text-xs text-neutral-400 mb-1">Layer Height</p>
+              <p class="text-sm text-white font-medium">
+                {{ orderDetails.order_detail.layer_height ?? 'N/A' }}<span *ngIf="orderDetails.order_detail.layer_height !== undefined">mm</span>
+              </p>
+            </div>
+
+            <div>
+              <p class="text-xs text-neutral-400 mb-1">Infill</p>
+              <p class="text-sm text-white font-medium">
+                {{ orderDetails.order_detail.infill ?? 'N/A' }}<span *ngIf="orderDetails.order_detail.infill !== undefined">%</span>
+              </p>
+            </div>
+
+            <div>
+              <p class="text-xs text-neutral-400 mb-1">Quantity</p>
+              <p class="text-sm text-white font-medium">{{ orderDetails.quantity ?? 'N/A' }}</p>
+            </div>
+
+            <!-- FDM Specific -->
+            <div *ngIf="orderDetails.order_type === 'FDM'">
+              <p class="text-xs text-neutral-400 mb-1">Nozzle Size</p>
+              <p class="text-sm text-white font-medium">
+                {{ orderDetails.order_detail.nozzle_size ?? 'N/A' }}<span *ngIf="orderDetails.order_detail.nozzle_size !== undefined">mm</span>
+              </p>
+            </div>
+
+            <div *ngIf="orderDetails.order_type === 'FDM'">
+              <p class="text-xs text-neutral-400 mb-1">Bottom Texture</p>
+              <p class="text-sm text-white font-medium">
+                {{ orderDetails.order_detail.bottom_texture || 'N/A' }}
+              </p>
+            </div>
+
+            <!-- SLA Specific -->
+            <div *ngIf="orderDetails.order_type === 'SLA'">
+              <p class="text-xs text-neutral-400 mb-1">Resin Type</p>
+              <p class="text-sm text-white font-medium">
+                {{ orderDetails.order_detail.resin_type || 'N/A' }}
+              </p>
+            </div>
+
+            <div *ngIf="orderDetails.order_type === 'SLA'">
+              <p class="text-xs text-neutral-400 mb-1">UV Curing</p>
+              <p class="text-sm text-white font-medium">
+                {{ orderDetails.order_detail.uv_curing || 'N/A' }}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Estimations -->
+        <div class="bg-neutral-800 border border-zinc-700 rounded p-4">
+          <h3 class="text-sm font-semibold text-white mb-3 flex items-center gap-2">
+            <svg class="w-4 h-4 text-teal-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            Cost Estimation
+          </h3>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <p class="text-xs text-neutral-400 mb-1">Estimated Weight</p>
+              <p class="text-sm text-white font-medium">
+                {{ orderDetails.estimations.estimated_weight ?? 'N/A' }}<span *ngIf="orderDetails.estimations.estimated_weight !== undefined">g</span>
+              </p>
+            </div>
+
+            <div>
+              <p class="text-xs text-neutral-400 mb-1">Estimated Cost</p>
+              <p class="text-sm text-white font-medium">
+                ₺{{ orderDetails.estimations.estimated_cost ?? 'N/A' }}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Notes -->
+        <div class="bg-neutral-800 border border-zinc-700 rounded p-4">
+          <h3 class="text-sm font-semibold text-white mb-3 flex items-center gap-2">
+            <svg class="w-4 h-4 text-teal-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path>
+            </svg>
+            Customer Notes
+          </h3>
+          <p class="text-sm text-neutral-300 leading-relaxed whitespace-pre-wrap">
+            {{ orderDetails.notes || 'No notes.' }}
+          </p>
+        </div>
+
+        <!-- Order Timeline 
+        <div class="bg-neutral-800 border border-zinc-700 rounded p-4">
+          <h3 class="text-sm font-semibold text-white mb-3 flex items-center gap-2">
+            <svg class="w-4 h-4 text-teal-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            Order Timeline
+          </h3>
+
+          <div class="space-y-3">
+            <div *ngFor="let item of getTimelineEntries()" class="flex items-start gap-3">
+              <div class="w-2 h-2 rounded-full bg-teal-500 mt-1.5 flex-shrink-0"></div>
+              <div class="flex-1">
+                <p class="text-sm text-white font-medium">{{ item.label }}</p>
+                <p class="text-xs text-neutral-400 mt-0.5">
+                  {{ item.entry.timestamp | date:'dd/MM/yyyy - HH:mm:ss' }}
+                </p>
+              </div>
+            </div>
+
+            <div *ngIf="getTimelineEntries().length === 0" class="text-xs text-neutral-400 text-center py-2">
+              No timeline entries available
+            </div>
+          </div>
+        </div>-->
+
+        <!-- Rejected Manufacturers 
+        <div *ngIf="orderDetails.rejected_manufacturers?.length" class="bg-neutral-800 border border-zinc-700 rounded p-4">
+          <h3 class="text-sm font-semibold text-white mb-3">Rejected Manufacturers</h3>
+          <div class="space-y-2">
+            <div *ngFor="let mid of orderDetails.rejected_manufacturers"
+                 class="text-xs text-neutral-300 break-all bg-neutral-900/40 border border-zinc-700 rounded px-2 py-1">
+              {{ mid }}
+            </div>
+          </div>
+        </div>-->
+
+        <!-- Status Badge 
+        <div class="bg-neutral-800 border border-zinc-700 rounded p-4">
+          <div class="flex items-center justify-between">
+            <span class="text-sm text-neutral-400">Order Status</span>
+
+            <span *ngIf="orderDetails.is_cancelled"
+                  class="px-3 py-1 bg-red-600/20 text-red-500 text-xs font-semibold rounded">
+              Cancelled
+            </span>
+
+            <span *ngIf="!orderDetails.is_cancelled"
+                  class="px-3 py-1 bg-teal-500/20 text-teal-300 text-xs font-semibold rounded">
+              {{ currentStatusLabel || 'Unknown' }}
+            </span>
+          </div>
+        </div>-->
+
+      </div>
+    </div>
+
+    <!-- Modal Footer -->
+    <div class="bg-neutral-900 border-t border-zinc-700 p-4 flex gap-2 justify-end sticky bottom-0">
+      <button (click)="closeDetailsModal()"
+              class="px-5 py-2 bg-neutral-800 border border-zinc-700 hover:bg-neutral-700 hover:border-zinc-600 text-white font-inter font-semibold text-sm transition-colors duration-150">
+        Close
+      </button>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+<!-- ADOPT ORDER CONFIRMATION MODAL -->
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+<div *ngIf="isAdoptModalOpen" 
+     class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm font-inter"
+     (click)="closeAdoptModal()">
+  
+  <div class="bg-neutral-900 border border-zinc-700 shadow-2xl w-full max-w-md m-4"
+       (click)="$event.stopPropagation()">
+    
+    <!-- Modal Header -->
+    <div class="bg-neutral-900 border-b border-zinc-700 p-4">
+      <div class="flex items-center gap-2.5">
+        <div class="w-10 h-10 rounded-full bg-yellow-400/20 flex items-center justify-center flex-shrink-0">
+          <svg class="w-5 h-5 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+        </div>
+        <div>
+          <h2 class="font-inter text-lg font-semibold text-white">Adopt Order</h2>
+          <p class="font-inter text-xs text-neutral-400 mt-0.5">
+            {{ orderId | orderIdShort }}
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Body -->
+    <div class="p-4">
+      <p class="text-neutral-300 font-inter text-sm leading-relaxed">
+        Are you sure you want to adopt this order? This order will be assigned to you and moved to your active orders list.
+      </p>
+      
+      <div class="mt-3 bg-neutral-800 border border-zinc-700 p-3 rounded">
+        <p class="text-xs text-neutral-400 mb-1.5">Order Details:</p>
+        <div class="space-y-0.5">
+          <p class="text-xs text-white"><span class="text-neutral-400">Order:</span> {{ orderId | orderIdShort }}</p> 
+          <p class="text-xs text-white"><span class="text-neutral-400">Customer:</span> {{ name }}</p>
+          <p class="text-xs text-white"><span class="text-neutral-400">Created:</span> {{ createdDate | date:'dd/MM/yyyy - HH:mm' }}</p>
+        </div>
+      </div>
+
+      <div class="mt-3 bg-yellow-400/10 border border-yellow-400/30 p-3 rounded flex gap-2">
+        <svg class="w-4 h-4 text-yellow-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        <p class="text-xs text-yellow-200 leading-relaxed">
+          Once adopted, this order will no longer appear in the unassigned orders pool.
+        </p>
+      </div>
+    </div>
+
+    <!-- Modal Footer -->
+    <div class="bg-neutral-900 border-t border-zinc-700 p-4 flex gap-2 justify-end">
+      <button (click)="closeAdoptModal()" 
+              [disabled]="isAdopting"
+              class="px-5 py-2 bg-neutral-800 border border-zinc-700 hover:bg-neutral-700 hover:border-zinc-600 text-white font-inter font-semibold text-sm transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed">
+        Cancel
+      </button>
+      <button (click)="confirmAdoptOrder()" 
+              [disabled]="isAdopting"
+              class="px-5 py-2 bg-yellow-400 hover:bg-yellow-500 text-black font-inter font-semibold text-sm transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
+        <span *ngIf="isAdopting" class="inline-block w-3.5 h-3.5 border-2 border-black border-t-transparent rounded-full animate-spin"></span>
+        {{ isAdopting ? 'Adopting...' : 'Yes, Adopt Order' }}
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+<!-- REJECT ORDER CONFIRMATION MODAL -->
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+<div *ngIf="isRejectModalOpen" 
+     class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm font-inter"
+     (click)="closeRejectModal()">
+  
+  <div class="bg-neutral-900 border border-zinc-700 shadow-2xl w-full max-w-md m-4"
+       (click)="$event.stopPropagation()">
+    
+    <!-- Modal Header -->
+    <div class="bg-neutral-900 border-b border-zinc-700 p-4">
+      <div class="flex items-center gap-2.5">
+        <div class="w-10 h-10 rounded-full bg-red-600/20 flex items-center justify-center flex-shrink-0">
+          <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+          </svg>
+        </div>
+        <div>
+          <h2 class="font-inter text-lg font-semibold text-white">Reject Order</h2>
+          <p class="font-inter text-xs text-neutral-400 mt-0.5">
+            {{ orderId | orderIdShort }}
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Body -->
+    <div class="p-4">
+      <p class="text-neutral-300 font-inter text-sm leading-relaxed">
+        Are you sure you want to reject this order? You won't see this order in your list anymore.
+      </p>
+      
+      <div class="mt-3 bg-neutral-800 border border-zinc-700 p-3 rounded">
+        <p class="text-xs text-neutral-400 mb-1.5">Order Details:</p>
+        <div class="space-y-0.5">
+          <p class="text-xs text-white"><span class="text-neutral-400">Order:</span> {{ orderId | orderIdShort }}</p> 
+          <p class="text-xs text-white"><span class="text-neutral-400">Customer:</span> {{ name }}</p>
+          <p class="text-xs text-white"><span class="text-neutral-400">Created:</span> {{ createdDate | date:'dd/MM/yyyy - HH:mm' }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Footer -->
+    <div class="bg-neutral-900 border-t border-zinc-700 p-4 flex gap-2 justify-end">
+      <button (click)="closeRejectModal()" 
+              [disabled]="isRejecting"
+              class="px-5 py-2 bg-neutral-800 border border-zinc-700 hover:bg-neutral-700 hover:border-zinc-600 text-white font-inter font-semibold text-sm transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed">
+        Cancel
+      </button>
+      <button (click)="confirmRejectOrder()" 
+              [disabled]="isRejecting"
+              class="px-5 py-2 bg-red-600 hover:bg-red-700 text-white font-inter font-semibold text-sm transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
+        <span *ngIf="isRejecting" class="inline-block w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+        {{ isRejecting ? 'Rejecting...' : 'Yes, Reject Order' }}
+      </button>
+    </div>
+
+  </div>
+</div>
+
